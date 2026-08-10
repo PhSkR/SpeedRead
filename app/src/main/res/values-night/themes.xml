@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.SpeedRead" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@android:color/white</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorSecondary">@android:color/white</item>
+        <item name="colorTertiary">@android:color/white</item>
+        <item name="colorSurface">@color/black</item>
+        <item name="colorOnSurface">@android:color/white</item>
+        <item name="colorOnSurfaceVariant">@android:color/white</item>
+        <item name="colorOutline">@android:color/white</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:textColorSecondary">@android:color/white</item>
+        <item name="materialButtonStyle">@style/Widget.SpeedRead.Button</item>
+        <item name="materialButtonOutlinedStyle">@style/Widget.SpeedRead.Button.OutlinedButton</item>
+        <item name="materialIconButtonStyle">@style/Widget.SpeedRead.Button.IconButton</item>
+        <item name="floatingActionButtonStyle">@style/Widget.SpeedRead.FloatingActionButton</item>
+        <item name="sliderStyle">@style/Widget.SpeedRead.Slider</item>
+        <item name="materialSwitchStyle">@style/Widget.SpeedRead.Switch</item>
+        <!-- DO NOT set status bar here - will be overridden programmatically -->
+    </style>
+    
+    <!-- Dynamic Material 3 theme for Android 12+ -->
+    <style name="Theme.SpeedRead.Dynamic" parent="Theme.Material3.DynamicColors.DayNight">
+        <!-- Dynamic colors will automatically adapt to user's wallpaper -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorPrimary">@android:color/white</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorSecondary">@android:color/white</item>
+        <item name="colorTertiary">@android:color/white</item>
+        <item name="colorSurface">@color/black</item>
+        <item name="colorOnSurface">@android:color/white</item>
+        <item name="colorOnSurfaceVariant">@android:color/white</item>
+        <item name="colorOutline">@android:color/white</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:textColorSecondary">@android:color/white</item>
+        <item name="materialButtonStyle">@style/Widget.SpeedRead.Button</item>
+        <item name="materialButtonOutlinedStyle">@style/Widget.SpeedRead.Button.OutlinedButton</item>
+        <item name="materialIconButtonStyle">@style/Widget.SpeedRead.Button.IconButton</item>
+        <item name="floatingActionButtonStyle">@style/Widget.SpeedRead.FloatingActionButton</item>
+        <item name="sliderStyle">@style/Widget.SpeedRead.Slider</item>
+        <item name="materialSwitchStyle">@style/Widget.SpeedRead.Switch</item>
+        <item name="android:statusBarColor">#FF000000</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    </style>
+    
+    <!-- Custom button style for black buttons with white text -->
+    <style name="Widget.SpeedRead.Button" parent="Widget.Material3.Button">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="backgroundTint">@android:color/black</item>
+        <item name="android:background">@android:color/black</item>
+        <item name="iconTint">@android:color/white</item>
+        <item name="strokeColor">@android:color/white</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <!-- Custom outlined button style for black buttons with white outline -->
+    <style name="Widget.SpeedRead.Button.OutlinedButton" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="backgroundTint">@android:color/black</item>
+        <item name="iconTint">@android:color/white</item>
+        <item name="strokeColor">@android:color/white</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+    
+    <!-- Custom icon button style for dark mode -->
+    <style name="Widget.SpeedRead.Button.IconButton" parent="Widget.Material3.Button.Icon">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="backgroundTint">@android:color/black</item>
+        <item name="iconTint">@android:color/white</item>
+        <item name="strokeColor">@android:color/white</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+    
+    <!-- Custom FAB style for dark mode -->
+    <style name="Widget.SpeedRead.FloatingActionButton" parent="Widget.Material3.FloatingActionButton.Primary">
+        <item name="backgroundTint">@android:color/black</item>
+        <item name="tint">@android:color/white</item>
+        <item name="strokeColor">@android:color/white</item>
+        <item name="strokeWidth">2dp</item>
+    </style>
+    
+    <!-- Custom slider style for white sliders -->
+    <style name="Widget.SpeedRead.Slider" parent="Widget.Material3.Slider">
+        <item name="thumbColor">@android:color/white</item>
+        <item name="trackColorActive">@android:color/white</item>
+        <item name="trackColorInactive">#80FFFFFF</item>
+    </style>
+    
+    <!-- Custom switch style for white switches -->
+    <style name="Widget.SpeedRead.Switch" parent="Widget.Material3.CompoundButton.MaterialSwitch">
+        <item name="thumbTint">@color/switch_thumb</item>
+        <item name="trackTint">@color/switch_track</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+</resources>

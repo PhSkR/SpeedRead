@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Landscape reader-mode variant. The RSVP card fills the entire screen so the current
+    word renders as large as possible. All portrait chrome is kept in the hierarchy with
+    visibility="gone" so ViewBinding preserves the same non-null IDs across variants —
+    ReadingFragment addresses both layouts uniformly without nullable sprinkling.
+
+    Variant-only views (nullable in binding): four compact hold-to-play FABs, one per
+    corner of rsvpDisplayCard. Each has a fixed anchor pair so their positions never shift
+    — ReadingFragment just toggles visibility per-FAB from settings.landscapePlayButtonCorners
+    (additive; up to all four can render at once). Their touch listeners play while held and
+    hide the FAB via alpha (not visibility, which would break in-flight touch dispatch on
+    some OEMs).
+-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.ReadingFragment">
+
+    <!-- Fullscreen RSVP Display -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/rsvpDisplayCard"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:cardElevation="0dp"
+        app:cardCornerRadius="0dp"
+        app:contentPadding="0dp"
+        app:contentPaddingTop="0dp"
+        app:contentPaddingBottom="0dp"
+        app:contentPaddingLeft="0dp"
+        app:contentPaddingRight="0dp">
+
+        <TextView
+            android:id="@+id/rsvpWordDisplay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnSurface"
+            android:background="?attr/colorSurface"
+            android:padding="0dp"
+            android:layout_gravity="center"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            tools:text="Sample" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Four corner-anchored compact hold-to-play FABs. Each is pinned to a single corner of
+         rsvpDisplayCard with a fixed anchor pair (no runtime constraint mutation) — the
+         ReadingFragment just flips visibility per-FAB from settings.landscapePlayButtonCorners.
+         Explicit 60dp size (no fabSize="mini") is 50% bigger than Material's mini; the buttons
+         fade to alpha 0 while held so the extra surface area is harmless. All four share the
+         same styling and content description. -->
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabHoldToPlayCompactTopStart"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:visibility="gone"
+        app:backgroundTint="?attr/colorSurface"
+        app:tint="?attr/colorOnSurface"
+        app:strokeColor="?attr/colorOnSurface"
+        app:strokeWidth="1dp"
+        app:elevation="6dp"
+        app:borderWidth="0dp"
+        app:srcCompat="@drawable/ic_play_arrow"
+        android:contentDescription="@string/hold_to_play"
+        app:layout_constraintStart_toStartOf="@id/rsvpDisplayCard"
+        app:layout_constraintTop_toTopOf="@id/rsvpDisplayCard" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabHoldToPlayCompactTopEnd"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="24dp"
+        android:visibility="gone"
+        app:backgroundTint="?attr/colorSurface"
+        app:tint="?attr/colorOnSurface"
+        app:strokeColor="?attr/colorOnSurface"
+        app:strokeWidth="1dp"
+        app:elevation="6dp"
+        app:borderWidth="0dp"
+        app:srcCompat="@drawable/ic_play_arrow"
+        android:contentDescription="@string/hold_to_play"
+        app:layout_constraintEnd_toEndOf="@id/rsvpDisplayCard"
+        app:layout_constraintTop_toTopOf="@id/rsvpDisplayCard" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabHoldToPlayCompactBottomStart"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginBottom="24dp"
+        app:backgroundTint="?attr/colorSurface"
+        app:tint="?attr/colorOnSurface"
+        app:strokeColor="?attr/colorOnSurface"
+        app:strokeWidth="1dp"
+        app:elevation="6dp"
+        app:borderWidth="0dp"
+        app:srcCompat="@drawable/ic_play_arrow"
+        android:contentDescription="@string/hold_to_play"
+        app:layout_constraintStart_toStartOf="@id/rsvpDisplayCard"
+        app:layout_constraintBottom_toBottomOf="@id/rsvpDisplayCard" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabHoldToPlayCompactBottomEnd"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
+        android:visibility="gone"
+        app:backgroundTint="?attr/colorSurface"
+        app:tint="?attr/colorOnSurface"
+        app:strokeColor="?attr/colorOnSurface"
+        app:strokeWidth="1dp"
+        app:elevation="6dp"
+        app:borderWidth="0dp"
+        app:srcCompat="@drawable/ic_play_arrow"
+        android:contentDescription="@string/hold_to_play"
+        app:layout_constraintEnd_toEndOf="@id/rsvpDisplayCard"
+        app:layout_constraintBottom_toBottomOf="@id/rsvpDisplayCard" />
+
+    <!-- Page View Only placeholder stub. Portrait variant shows a real message; this
+         stub exists only to keep ViewBinding's pageViewOnlyPlaceholder non-null. -->
+    <LinearLayout
+        android:id="@+id/pageViewOnlyPlaceholder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints">
+
+        <TextView
+            android:id="@+id/pageViewOnlyTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/pageViewOnlyMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <!--
+        Views below are hidden but kept present so ViewBinding keeps the same non-null IDs
+        as the portrait variant. ReadingFragment touches most of these on every state emission
+        (slider observer, page counter text, restart-paragraph click listener, etc.) and
+        nullable access everywhere would bloat the fragment with ?. operators.
+    -->
+
+    <TextView
+        android:id="@+id/documentTitleDisplay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/importStatusCard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/importStatusText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/importProgressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:indeterminate="true" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progressBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/pageCounter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <LinearLayout
+        android:id="@+id/navigationLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPreviousWord"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:icon="@drawable/ic_navigate_before" />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/positionSlider"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:valueFrom="1"
+            android:valueTo="2"
+            android:value="1"
+            android:stepSize="1" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnNextWord"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:icon="@drawable/ic_navigate_next" />
+
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/controlsLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRestartParagraph"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:text="@string/restart_paragraph"
+            app:icon="@drawable/ic_restart_paragraph"
+            tools:ignore="MissingConstraints" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSaveDocument"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:text="@string/save_document"
+            app:icon="@drawable/ic_save"
+            tools:ignore="MissingConstraints" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnBookmarks"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:text="@string/bookmarks"
+            app:icon="@drawable/ic_bookmark"
+            tools:ignore="MissingConstraints" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/wpmSliderLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints">
+
+        <TextView
+            android:id="@+id/readingWpmValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/readingWpmSlider"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:valueFrom="100"
+            android:valueTo="1000"
+            android:value="250"
+            android:stepSize="10" />
+
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabHoldToPlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:srcCompat="@drawable/ic_play_arrow"
+        android:contentDescription="@string/hold_to_play"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabPageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:srcCompat="@drawable/ic_description"
+        android:contentDescription="@string/switch_to_page_view"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabImportText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:srcCompat="@drawable/ic_add"
+        android:contentDescription="@string/import_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabEnterLandscape"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        app:fabSize="mini"
+        app:backgroundTint="?attr/colorSurface"
+        app:tint="?attr/colorOnSurface"
+        app:srcCompat="@drawable/ic_fullscreen_exit"
+        android:contentDescription="@string/exit_landscape"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

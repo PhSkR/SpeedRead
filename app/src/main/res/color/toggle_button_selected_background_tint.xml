@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Shared visual contract for "selected toggle button" across the app: a filled primary fill
+     stands out clearly against unchecked outlined buttons so the active option is obvious at a
+     glance. Used by both the landscape play-button corner picker and the Page View scroll-mode
+     toggle. New toggle groups should reuse this selector rather than introducing a parallel one. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true" android:color="?attr/colorPrimary" />
+    <item android:color="@android:color/transparent" />
+</selector>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Full-screen page content: no card, no info bar, no outer padding.
+     The containing RecyclerView gives each item the full screen width/height. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/pageScroll"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <!-- textIsSelectable false: long-press is reserved for "set as RSVP continuation point"
+         (see PageAdapter.PageViewHolder.wireLongPressIfNeeded). Native text selection would
+         otherwise consume the long-press gesture before our handler ran. -->
+    <TextView
+        android:id="@+id/pageContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="24dp"
+        android:textAppearance="?attr/textAppearanceBody1"
+        android:textColor="?attr/colorOnSurface"
+        android:lineSpacingMultiplier="1.4"
+        android:textSize="16sp"
+        tools:text="This is the page content that will be displayed. It should be easy to read and properly formatted for the user to enjoy reading in page view mode." />
+
+</ScrollView>

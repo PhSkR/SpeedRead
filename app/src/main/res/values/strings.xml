@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">RVSPReader</string>
+    <string name="schema_reset_notice">Your saved bookmarks and documents were reset during this update due to a database schema change. Future updates will preserve your data.</string>
+    <string name="schema_reset_dismiss">OK</string>
+    <string name="restart_paragraph">Restart ¶</string>
+    <string name="reading_speed">Reading Speed</string>
+    <string name="wpm_format">%d WPM</string>
+    <string name="import_text">Import Text</string>
+    <string name="importing_document">Importing document...</string>
+    <string name="processing_pdf">Processing PDF file...</string>
+    <string name="processing_epub">Processing EPUB file...</string>
+    <string name="processing_text">Processing text file...</string>
+    <string name="analyzing_text">Analyzing text content...</string>
+    <string name="import_complete">Import complete!</string>
+    <string name="import_failed">Import failed</string>
+    <string name="paste_from_clipboard">Paste from Clipboard</string>
+    <string name="enter_text_manually">Enter Text Manually</string>
+    <string name="enter_text">Enter Text</string>
+    <string name="enter_text_hint">Enter text to read...</string>
+    <string name="load">Load</string>
+    <string name="cancel">Cancel</string>
+    <string name="import_from_file">Import from File</string>
+    <string name="select_file">Select File</string>
+    <string name="loading_file">Loading file...</string>
+    <string name="file_parse_error">Error reading file</string>
+    <string name="file_parse_success">File loaded successfully</string>
+    <string name="import_from_url">Import from URL</string>
+    <string name="enter_url">Enter URL</string>
+    <string name="enter_url_hint">https://example.com/article</string>
+    <string name="url_invalid_scheme">Please use an http:// or https:// URL.</string>
+    <string name="bookmark">Bookmark</string>
+    <string name="bookmarks">Bookmarks</string>
+    <string name="save_bookmark">Save Bookmark</string>
+    <string name="bookmark_saved">Bookmark saved</string>
+    <string name="bookmark_title_hint">Bookmark title</string>
+    <string name="jump_to_bookmark">Jump to position</string>
+    <string name="delete_bookmark">Delete bookmark</string>
+    <string name="no_bookmarks">No bookmarks yet</string>
+    <string name="auto_bookmark">Auto-saved</string>
+    <string name="progress_format">%d%%</string>
+    <string name="save_document">Save Document</string>
+    <string name="saved_documents">Saved Documents</string>
+    <string name="document_saved">Document saved to library</string>
+    <string name="document_already_saved">Document already in library</string>
+    <string name="document_title_hint">Document title</string>
+    <string name="no_saved_documents">No saved documents yet</string>
+    <string name="reload_document">Reload document</string>
+    <string name="delete_document">Delete document</string>
+    <string name="favorite">Favorite</string>
+    <string name="unfavorite">Remove from favorites</string>
+    <string name="add_tags">Add tags</string>
+    <string name="tags_hint">Enter tags separated by commas</string>
+    <string name="load_document">Load document</string>
+    <string name="document_info">Document Info</string>
+    <string name="word_count_format">%d words</string>
+    <string name="file_size_format">%.1f KB</string>
+    <string name="position_scrubber">Position scrubber</string>
+    <string name="reading_wpm_slider_cd">Reading speed slider</string>
+    <string name="reading_progress_format">%d%% complete</string>
+    <string name="resume_reading">Resume reading</string>
+    <string name="page_counter_format">%1$d/%2$d</string>
+    <string name="page_counter_empty">0/0</string>
+    <string name="page_counter_description">Page counter</string>
+    <string name="jump_to_page">Jump to Page</string>
+    <string name="jump">Jump</string>
+    <string name="page_jump_hint">Enter page number (1-%d)</string>
+    <string name="current_page_info">Current: Page %1$d of %2$d</string>
+    <string name="single_page_document">Document has only one page</string>
+    <string name="invalid_page_number">Please enter a valid page number (1-%d)</string>
+    <string name="invalid_page_input">Invalid page number</string>
+    
+    <!-- Tab Labels -->
+    <string name="tab_reading">Reading</string>
+    <string name="tab_library">Library</string>
+    <string name="tab_options">Options</string>
+    
+    <!-- Library Tab -->
+    <string name="library_title">My Library</string>
+    <string name="quick_actions">Quick Actions</string>
+    <string name="open_documents_folder">Import Documents</string>
+    <string name="refresh_library">Refresh</string>
+    <string name="documents_folder">Documents Folder</string>
+    <string name="empty_library_message">No saved documents yet.\nImport and save documents to see them here.</string>
+    <string name="empty_folder_message">No files found in documents folder.\nAdd PDF, EPUB, or TXT files to import them.</string>
+    <string name="folder_access_error">Unable to access documents folder</string>
+    <string name="import_from_folder">Import from folder</string>
+    
+    <!-- Options Tab -->
+    <string name="options_title">Reading Options</string>
+    <string name="user_manual_button_label">User Manual</string>
+    <string name="user_manual_dialog_title">User Manual</string>
+    <string name="user_manual_close_button">Got it</string>
+    <!-- Long-form HTML body for the User Manual dialog. Rendered with Html.fromHtml in
+         FROM_HTML_MODE_LEGACY so &lt;p&gt; produces visible paragraph breaks (COMPACT mode
+         collapses them). Wrapped in CDATA so HTML tags can stay literal — no XML entity
+         escaping needed. Keep the content surface this single resource so future feature
+         additions touch one place; structure is &lt;b&gt; for section headings and bullet
+         lines built with the &amp;#8226; character (Html lacks reliable &lt;ul&gt;/&lt;li&gt;
+         spacing across API levels). -->
+    <string name="user_manual_content_html"><![CDATA[
+<p><b>Welcome to SpeedRead</b></p>
+<p>SpeedRead is a Rapid Serial Visual Presentation (RSVP) reader. It flashes one word (or a small chunk) at a time at a fixed location so your eyes never have to move. With practice you can read several times faster than you do across a printed page.</p>
+<p>You can read in two ways: <b>RSVP</b> (the flashing word display on the Reading tab) or <b>Page View</b> (a traditional document view, opened from a saved document). Both share the same playback engine and bookmarks.</p>
+
+<p><b>Reading screen — RSVP gestures</b></p>
+<p>&#8226; <b>Tap the big play button</b> — toggles play / pause.<br/>
+&#8226; <b>Press &amp; hold the play button</b> — plays only while held; releases pauses immediately. Useful for short bursts.<br/>
+&#8226; <b>Double-tap any word</b> — drops a Quick Bookmark at the current position. The word display briefly scales up to confirm.<br/>
+&#8226; <b>Tap the ± buttons</b> (under the play button, only while listening) — adjusts speech rate by 0.10x per tap, clamped to 0.5x – 3.0x.<br/>
+&#8226; <b>Tap the headphone FAB</b> — switches between RSVP (visual) and Listen (TTS, voice) playback. Both share the same word position.<br/>
+&#8226; <b>Screen stays on</b> — the display will not sleep while RSVP is actively playing, so you never need to touch the screen to keep reading.</p>
+
+<p><b>Reading screen — landscape extras</b></p>
+<p>&#8226; <b>Tap the left half</b> of the word area — steps one word back.<br/>
+&#8226; <b>Tap the right half</b> of the word area — steps one word forward.<br/>
+&#8226; <b>Drag horizontally</b> across the word area — scrubs through the document. Sensitivity is configurable (Settings → Landscape scrub sensitivity).<br/>
+&#8226; The play button shrinks to a corner FAB. Pick which corner(s) it shows in via Settings → Landscape Play Button Corner.</p>
+
+<p><b>Page View — gestures</b></p>
+<p>&#8226; <b>Single-tap</b> on the page padding / edge — toggles the floating toolbar and page indicator. They auto-hide after a few seconds of inactivity.<br/>
+&#8226; <b>Long-press a word</b> — marks that exact word as the RSVP continuation point. When you switch back to the Reading tab, RSVP picks up from there.<br/>
+&#8226; <b>Double-tap a word</b> — drops a Quick Bookmark at that word. A short toast confirms.<br/>
+&#8226; <b>Swipe horizontally</b> (Paged mode) — flips between pages.<br/>
+&#8226; <b>Drag the scrollbar</b> (Continuous mode) — jumps anywhere in the document. The scrollbar stays visible so you can see your position at a glance.<br/>
+&#8226; <b>Play FAB</b> (bottom-right) — starts playback in whichever mode is active. In Listen (TTS) mode it narrates aloud; in RSVP mode it plays a visual-only rolling highlight at your configured WPM. Icon: play arrow for RSVP, speaker for TTS, pause when playing either. The page indicator and a preview snippet follow the active word.<br/>
+&#8226; <b>Scroll-to-highlight FAB</b> — appears when the active word is offscreen; tap to jump back to it.</p>
+
+<p><b>Continuous vs. Paged</b></p>
+<p>&#8226; <b>Continuous</b> (default) — a single long scrollable view of the whole document. Best for plain text and EPUBs.<br/>
+&#8226; <b>Paged</b> — swipe-per-page with snap. Best for documents you want to read by visual page boundaries.<br/>
+&#8226; PDFs always render as native paged bitmaps, regardless of this setting. Long-press and double-tap word gestures don\'t apply to PDF pages.<br/>
+&#8226; Switch modes from Settings → Page View Appearance.</p>
+
+<p><b>Listen mode (TTS)</b></p>
+<p>&#8226; Toggle Listen mode from the Reading screen\'s headphone FAB or from Page View\'s menu. Both surfaces share one playback session, so pausing in one pauses the other.<br/>
+&#8226; <b>Speech rate</b> — Settings slider, or the inline ± buttons on the Reading screen during playback.<br/>
+&#8226; <b>Pitch</b> — Settings → Listening.<br/>
+&#8226; <b>Two backends</b>:<br/>
+&nbsp;&nbsp;&nbsp;• <b>System</b> — your phone\'s built-in TTS engine. Fast to start, voice quality varies by device. Use the Language filter to narrow a long voice list down to one language.<br/>
+&nbsp;&nbsp;&nbsp;• <b>Neural (Piper)</b> — high-quality offline neural voices. Open the in-app Voice Catalog (Settings → Listening → Browse voice catalog) to download voices on demand.<br/>
+&#8226; <b>Lock screen / Bluetooth headset controls</b> — play, pause, and skip ±10 words. The notification stays live as long as TTS is playing.<br/>
+&#8226; <b>Auto-save</b> — your position is saved every five seconds while playing, so a closed app or background kill costs at most a few words.<br/>
+&#8226; <b>Mode memory</b> — the app remembers whether you were last using RSVP or Listen mode and reopens in that mode on next launch.</p>
+
+<p><b>Bookmarks</b></p>
+<p>&#8226; <b>Quick Bookmark</b> — double-tap a word in either RSVP or Page View. The title is generated automatically: <i>Quick Bookmark - Page N: "word"</i>.<br/>
+&#8226; <b>Manual bookmark</b> — from the bookmark dialog (named bookmark with your title).<br/>
+&#8226; <b>Auto bookmark</b> — created when you save a document; updated as you read.<br/>
+&#8226; Find all bookmarks in the Library tab, grouped per document. Tap one to jump to that word.</p>
+
+<p><b>Importing documents</b></p>
+<p>&#8226; <b>Files</b> — PDF, EPUB, and TXT via the file picker.<br/>
+&#8226; <b>URL</b> — paste an http(s) link to fetch and import the page text.<br/>
+&#8226; <b>Clipboard</b> — paste any text directly.<br/>
+&#8226; <b>Share to SpeedRead</b> — share text or a supported file from any app to import it.<br/>
+&#8226; Saved documents live in the Library tab and remember your last position automatically.</p>
+
+<p><b>Settings overview</b></p>
+<p>&#8226; <b>Reading Speed</b> — base WPM (100–1000), chunk size (1–5 words per flash), font size, ORP toggle and ORP centering, dim-screen toggle, landscape play-button corner, landscape scrub sensitivity.<br/>
+&#8226; <b>Punctuation Timing</b> — extra pause length per punctuation mark (comma, period, question mark, etc.) and at line / paragraph breaks.<br/>
+&#8226; <b>Word Length Timing</b> — opt-in scaling of RSVP display duration by character count. Longer words linger; shorter words flash faster. Adjustable baseline word length and scaling factor.<br/>
+&#8226; <b>Theme</b> — Light / Dark / System, with optional Material Dynamic colors on Android 12+.<br/>
+&#8226; <b>Text Color</b> — RSVP word display color preset.<br/>
+&#8226; <b>Page View Appearance</b> — separate Page View font size, color preset, Continuous / Paged scroll mode, and paragraph spacing toggle.<br/>
+&#8226; <b>Listening</b> — TTS backend, language filter, voice picker, speech rate and pitch sliders, Neural voice catalog browser.<br/>
+&#8226; <b>Reset to Defaults</b> — restores every setting to its installed value (does not delete your library or bookmarks).</p>
+
+<p><b>What is ORP?</b></p>
+<p>The Optimal Recognition Point is the letter in a word your eye most naturally fixates on (typically just left of center). Highlighting it keeps your gaze anchored at the same horizontal position as words flash by, which reduces eye movement and lets you read faster with less fatigue.</p>
+
+<p><b>Tips for getting started</b></p>
+<p>&#8226; Begin around 250 WPM and increase by 25–50 WPM as you grow comfortable.<br/>
+&#8226; Use a chunk size of 1 until your reading speed plateaus, then try 2 to push further.<br/>
+&#8226; Keep ORP highlighting on — it makes a big difference at higher speeds.<br/>
+&#8226; If you lose your place, long-press in Page View on the last word you remember to re-anchor RSVP there.<br/>
+&#8226; For long sessions, turn on Dim Surrounding Screen to reduce eye strain.</p>
+]]></string>
+    <string name="reading_speed_settings">RSVP Settings</string>
+    <string name="base_wpm_label">Words Per Minute (WPM)</string>
+    <string name="chunk_size_label">Chunk Size</string>
+    <string name="chunk_size_description">Number of words to display at once for better phrase comprehension</string>
+    <string name="font_size_label">Font Size</string>
+    <string name="orp_highlighting_label">Optimal Recognition Point (ORP)</string>
+    <string name="orp_description">Highlights the optimal letter in each word to keep your eyes centered and reduce fatigue</string>
+    <string name="center_orp_label">Center ORP Character</string>
+    <string name="center_orp_description">Keep the highlighted character centered for maximum reading efficiency</string>
+    <string name="screen_dimming_label">Dim Surrounding Screen</string>
+    <string name="screen_dimming_description">Darkens the area above and below the word display while playing to reduce visual distractions.</string>
+    <string name="paragraph_spacing_label">Paragraph Spacing</string>
+    <string name="paragraph_spacing_description">Separates paragraphs with blank lines in Page View continuous mode.</string>
+    <string name="timing_settings">Punctuation Timing</string>
+    <string name="timing_description">Adjust extra pause duration for different punctuation marks</string>
+    <string name="punctuation_pausing_label">Punctuation Pauses</string>
+    <string name="punctuation_pausing_description">Master switch for all punctuation and line-break pauses. When off, the sliders below have no effect.</string>
+    <string name="advanced_settings">Advanced</string>
+    <string name="reset_to_defaults">Reset to Defaults</string>
+    
+    <!-- Timing Labels -->
+    <string name="comma_timing">Comma (,)</string>
+    <string name="period_timing">Period (.)</string>
+    <string name="semicolon_timing">Semicolon (;)</string>
+    <string name="colon_timing">Colon (:)</string>
+    <string name="question_timing">Question Mark (?)</string>
+    <string name="exclamation_timing">Exclamation (!)</string>
+    <string name="line_break_timing">Line Break</string>
+    <string name="paragraph_timing">Paragraph Break</string>
+    
+    <!-- Timing Descriptions -->
+    <string name="comma_description">Brief pause for list items and clauses</string>
+    <string name="period_description">Pause at end of sentences</string>
+    <string name="semicolon_description">Medium pause for related clauses</string>
+    <string name="colon_description">Pause before lists or explanations</string>
+    <string name="question_description">Pause for question comprehension</string>
+    <string name="exclamation_description">Pause for emphasis and emotion</string>
+    <string name="line_break_description">Pause at end of lines</string>
+    <string name="paragraph_description">Longer pause between paragraphs</string>
+    
+    <!-- Timing Format -->
+    <string name="timing_format">%dms</string>
+    
+    <!-- Word Length Timing -->
+    <string name="word_length_timing_title">Word Length Timing</string>
+    <string name="word_length_timing_description">Adjusts display duration based on word length. Longer words linger; shorter words flash faster.</string>
+    <string name="word_length_timing_toggle_label">Enable Word Length Timing</string>
+    <string name="word_length_baseline_label">Baseline Word Length</string>
+    <string name="word_length_baseline_description">Words with this many characters get no adjustment.</string>
+    <string name="word_length_baseline_value">%d characters</string>
+    <string name="word_length_scaling_label">Scaling Factor</string>
+    <string name="word_length_scaling_description">Percentage of delay change per character above or below the baseline.</string>
+    <string name="word_length_scaling_value">%d%% per character</string>
+
+    <!-- Theme Settings -->
+    <string name="theme_settings">Theme Settings</string>
+    <string name="theme_mode_label">Theme Mode</string>
+    <string name="theme_style_label">Theme Style</string>
+    <string name="light_theme">Light</string>
+    <string name="dark_theme">Dark</string>
+    <string name="system_theme">System</string>
+    <string name="material_default">Default</string>
+    <string name="material_dynamic">Dynamic</string>
+    
+    <!-- Text Color Settings -->
+    <string name="text_color_settings">Text Appearance</string>
+    <string name="text_color_label">Text Color</string>
+    <string name="background_color_label">Background Color</string>
+    <string name="color_preset_black_white">Black on White</string>
+    <string name="color_preset_white_black">White on Black</string>
+    <string name="color_preset_sepia">Sepia</string>
+    <string name="color_preset_dark_blue">Dark Blue</string>
+    <string name="color_preset_green_black">Green on Black</string>
+    <string name="color_preset_amber_dark">Amber on Dark</string>
+    <string name="color_preset_purple_light">Purple on Light</string>
+    <string name="color_preset_high_contrast">High Contrast Blue</string>
+    <string name="select_color_theme">Select Color Theme</string>
+    
+    <!-- ORP Color Presets -->
+    <string name="orp_color_label">ORP Highlight Color</string>
+    <string name="orp_color_orange">Orange</string>
+    <string name="orp_color_red">Red</string>
+    <string name="orp_color_blue">Blue</string>
+    <string name="orp_color_green">Green</string>
+    <string name="orp_color_purple">Purple</string>
+    <string name="orp_color_cyan">Cyan</string>
+    <string name="orp_color_yellow">Yellow</string>
+    <string name="orp_color_pink">Pink</string>
+
+    <!-- Hold to Play Button -->
+    <string name="hold_to_play">Hold to play</string>
+    <string name="enter_landscape">Enter landscape reader mode</string>
+    <string name="exit_landscape">Exit landscape reader mode</string>
+    <string name="landscape_play_button_corner_label">Landscape Play Button Corners</string>
+    <string name="landscape_play_button_corner_description">Select one or more corners to show a press-and-hold play button in each on the landscape reader screen.</string>
+    <string name="corner_top_start">Top Left</string>
+    <string name="corner_top_end">Top Right</string>
+    <string name="corner_bottom_start">Bottom Left</string>
+    <string name="corner_bottom_end">Bottom Right</string>
+    <string name="scrub_sensitivity_label">Landscape Scrub Sensitivity</string>
+    <string name="scrub_sensitivity_description">How many pixels of horizontal drag advance one word while scrubbing in landscape. Higher = slower / more precise.</string>
+    <string name="scrub_sensitivity_value">%d px / word</string>
+    
+    <!-- Document Title Display -->
+    <string name="no_document_loaded">No document loaded</string>
+    
+    <!-- Word Navigation -->
+    <string name="previous_word">Previous word</string>
+    <string name="next_word">Next word</string>
+    
+    <!-- Page View -->
+    <string name="switch_to_page_view">Page View</string>
+    <string name="switch_to_rsvp">RSVP Mode</string>
+    <string name="page_view_title">Page View</string>
+    <string name="previous_page">Previous page</string>
+    <string name="next_page">Next page</string>
+
+    <!-- Page View Only Mode -->
+    <string name="page_view_only_mode_label">Page View Only</string>
+    <string name="page_view_only_mode_description">Opens documents directly in Page View with no speed-reading controls, word highlighting, or playback buttons. Just a clean scrolling or paged reading experience.</string>
+    <string name="page_view_only_active_title">Page View Only</string>
+    <string name="page_view_only_active_message">RSVP reader is disabled while Page View Only mode is active. Open a document from the Library tab to read in Page View.\n\nYou can turn this off in Settings.</string>
+
+    <!-- Page View Appearance (Options tab) -->
+    <string name="page_view_appearance_settings">Page View Appearance</string>
+    <string name="page_view_font_size_label">Page View Font Size</string>
+    <string name="page_view_color_theme_label">Page View Color Theme</string>
+    <string name="page_view_scroll_mode_label">Scroll Mode</string>
+    <string name="page_view_scroll_mode_continuous">Continuous</string>
+    <string name="page_view_scroll_mode_paged">Paged</string>
+
+    <!-- Document load diagnostics -->
+    <string name="document_truncated_warning">Document too long: only first %1$d of %2$d tokens loaded</string>
+
+    <!-- Library load confirmation -->
+    <string name="confirm_load_title">Load Document</string>
+    <string name="confirm_load_message">Load \"%1$s\" into the reader?</string>
+    <string name="confirm_load_message_with_progress">Load \"%1$s\" into the reader?\n\nResume at %2$d%% (word %3$d of %4$d).</string>
+    <string name="document_loaded_toast">Loaded: %1$s</string>
+
+    <!-- TTS / Listen mode -->
+    <string name="tts_section_title">Listening (Read Aloud)</string>
+    <string name="tts_backend_label">TTS Engine</string>
+    <string name="tts_backend_system">System (Android TTS)</string>
+    <string name="tts_backend_neural">Neural (Piper/VITS)</string>
+    <string name="tts_rate_label">Speech Rate</string>
+    <!-- Inline ±speed selector under the Reading-screen play button. The label characters are
+         intentionally Unicode minus (U+2212) and plus to read consistently across fonts; the
+         "−" character would also be set programmatically but XML inlining makes it visible
+         in the layout preview. The value format renders e.g. 1.20x. -->
+    <string name="tts_rate_decrease_label">−</string>
+    <string name="tts_rate_increase_label">+</string>
+    <string name="tts_rate_decrease_cd">Decrease narration speed</string>
+    <string name="tts_rate_increase_cd">Increase narration speed</string>
+    <string name="tts_rate_value_format">%1$.2fx</string>
+    <string name="tts_pitch_label">Pitch</string>
+    <string name="tts_voice_label">Voice</string>
+    <string name="tts_voice_default">Default</string>
+    <string name="tts_language_label">Language</string>
+    <string name="tts_language_all">All languages</string>
+    <string name="tts_neural_folder_label">Neural voice folder (drop Piper models here)</string>
+    <string name="tts_neural_empty_state">No Neural voices installed. Drop a Piper voice folder into the path above, or browse the catalog to install one.</string>
+    <string name="tts_open_folder">Open folder</string>
+    <string name="tts_browse_catalog">Browse voice catalog</string>
+
+    <!-- Voice catalog -->
+    <string name="voice_catalog_title">Piper voice catalog</string>
+    <string name="voice_catalog_loading">Loading catalog…</string>
+    <string name="voice_catalog_empty">No voices found. Pull down to refresh.</string>
+    <string name="voice_catalog_error">Couldn\'t load the catalog: %1$s</string>
+    <string name="voice_catalog_retry">Retry</string>
+    <string name="voice_catalog_size_mb">%1$.1f MB</string>
+    <string name="voice_catalog_status_not_installed">Not installed</string>
+    <string name="voice_catalog_status_installed">Installed</string>
+    <string name="voice_catalog_status_update_available">Update available</string>
+    <string name="voice_catalog_status_downloading">Downloading %1$d%%</string>
+    <string name="voice_catalog_status_extracting">Extracting…</string>
+    <string name="voice_catalog_status_failed">Install failed</string>
+    <string name="voice_catalog_action_install">Install</string>
+    <string name="voice_catalog_action_update">Update</string>
+    <string name="voice_catalog_action_cancel">Cancel</string>
+    <string name="voice_catalog_action_uninstall">Uninstall</string>
+    <string name="voice_catalog_action_retry">Retry</string>
+    <string name="voice_catalog_uninstall_confirm_title">Uninstall voice?</string>
+    <string name="voice_catalog_uninstall_confirm_message">Delete the voice folder \"%1$s\" from local storage? You can reinstall it from the catalog later.</string>
+    <string name="voice_catalog_uninstalled_toast">Uninstalled %1$s</string>
+    <string name="voice_catalog_install_succeeded_toast">Installed %1$s</string>
+    <string name="voice_catalog_quality_format">%1$s · %2$s</string>
+    <string name="voice_catalog_search_hint">Search voices</string>
+    <string name="tts_neural_fallback_snackbar">Neural voice not installed — falling back to System TTS. Drop a model in the path shown in Options → Listening.</string>
+    <string name="listen_toggle_cd_start">Listen (read aloud)</string>
+    <string name="listen_toggle_cd_stop">Back to RSVP mode</string>
+
+    <!-- Background TTS playback notification -->
+    <string name="tts_notification_default_title">SpeedRead</string>
+    <string name="tts_notification_progress">Word %1$d of %2$d</string>
+    <string name="tts_notification_page_progress">Page %1$d of %2$d</string>
+    <string name="tts_notification_state_starting">Starting&#8230;</string>
+    <string name="tts_notification_state_playing">Reading aloud</string>
+    <string name="tts_notification_state_paused">Paused</string>
+    <string name="tts_action_play">Play</string>
+    <string name="tts_action_pause">Pause</string>
+    <string name="tts_action_stop">Stop</string>
+    <string name="tts_notification_permission_denied">Notification blocked — listen mode works without one, but lock-screen controls will not appear.</string>
+
+    <!-- Page View TTS -->
+    <string name="page_view_play">Play</string>
+    <string name="page_view_pause">Pause</string>
+    <string name="page_view_listen">Listen</string>
+    <string name="page_view_pause_listen">Pause listening</string>
+    <string name="page_view_scroll_to_highlight">Scroll to highlighted word</string>
+
+</resources>

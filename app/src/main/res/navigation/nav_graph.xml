@@ -1,0 +1,37 @@
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/readingFragment">
+
+    <fragment
+        android:id="@+id/readingFragment"
+        android:name="com.speedread.rsvp.ui.ReadingFragment"
+        android:label="Reading"
+        tools:layout="@layout/fragment_reading" />
+
+    <fragment
+        android:id="@+id/libraryFragment"
+        android:name="com.speedread.rsvp.ui.LibraryFragment"
+        android:label="Library"
+        tools:layout="@layout/fragment_library" />
+
+    <fragment
+        android:id="@+id/optionsFragment"
+        android:name="com.speedread.rsvp.ui.OptionsFragment"
+        android:label="Options"
+        tools:layout="@layout/fragment_options">
+
+        <action
+            android:id="@+id/action_options_to_voiceCatalog"
+            app:destination="@id/voiceCatalogFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/voiceCatalogFragment"
+        android:name="com.speedread.rsvp.ui.VoiceCatalogFragment"
+        android:label="@string/voice_catalog_title"
+        tools:layout="@layout/fragment_voice_catalog" />
+
+</navigation>

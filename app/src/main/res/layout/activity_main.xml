@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/nav_host_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/nav_graph" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
+
+    <!-- Activity-level dim overlay used by "Dim Surrounding Screen" reader mode. Spans the
+         entire activity so it covers everything the previous fragment-internal overlays
+         could not reach: the system status-bar inset above the ScrollView, the 16dp gaps
+         to the left/right of the rsvpDisplayCard (inside the parent ConstraintLayout's
+         padding), and the gesture-bar inset below the BottomNavigationView. Visibility +
+         exclude rect (the card's screen-space bounds) are managed from
+         ReadingFragment.applyDimMask. translationZ exceeds Material BottomNavigationView's
+         built-in elevation (~3-8dp depending on theme) so the dim paints over the nav. -->
+    <com.speedread.rsvp.ui.DimMaskView
+        android:id="@+id/dimMask"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:translationZ="@dimen/dim_overlay_translation_z"
+        android:importantForAccessibility="no"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

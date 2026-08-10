@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/page_view_appearance_settings"
+        android:textAppearance="?attr/textAppearanceHeadline6"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/page_view_font_size_label"
+        android:textAppearance="?attr/textAppearanceBody1"
+        android:layout_marginBottom="4dp" />
+
+    <TextView
+        android:id="@+id/pageViewSheetFontSizeValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="18sp"
+        android:textAppearance="?attr/textAppearanceBody2"
+        android:textColor="?attr/colorOnSurface"
+        android:layout_marginBottom="8dp" />
+
+    <com.google.android.material.slider.Slider
+        android:id="@+id/pageViewSheetFontSizeSlider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:valueFrom="10"
+        android:valueTo="48"
+        android:value="18"
+        android:stepSize="1" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/pageViewSheetColorPresetDropdownLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+        <com.google.android.material.textfield.MaterialAutoCompleteTextView
+            android:id="@+id/pageViewSheetColorPresetDropdown"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/page_view_color_theme_label"
+            android:inputType="none" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/page_view_scroll_mode_label"
+        android:textAppearance="?attr/textAppearanceBody1"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="4dp" />
+
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/pageViewSheetScrollModeGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:singleSelection="true"
+        app:selectionRequired="true">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/pageViewSheetScrollModeContinuous"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/page_view_scroll_mode_continuous"
+            android:textColor="@color/toggle_button_selected_text_color"
+            app:backgroundTint="@color/toggle_button_selected_background_tint" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/pageViewSheetScrollModePaged"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/page_view_scroll_mode_paged"
+            android:textColor="@color/toggle_button_selected_text_color"
+            app:backgroundTint="@color/toggle_button_selected_background_tint" />
+
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pageViewSheetDoneButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="16dp"
+        android:text="@android:string/ok" />
+
+</LinearLayout>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_switch_to_rsvp"
+        android:title="Switch to RSVP"
+        android:icon="@drawable/ic_text_fields"
+        app:iconTint="?attr/colorOnSurface"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_toggle_playback"
+        android:title="@string/page_view_play"
+        android:icon="@drawable/ic_play_arrow"
+        app:iconTint="?attr/colorOnSurface"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_view_bookmarks"
+        android:title="@string/bookmarks"
+        android:icon="@drawable/ic_bookmark"
+        app:iconTint="?attr/colorOnSurface"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_bookmark"
+        android:title="Bookmark"
+        android:icon="@drawable/ic_bookmark_outline"
+        app:iconTint="?attr/colorOnSurface"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_toggle_pdf_mode"
+        android:title="Switch to PDF Mode"
+        android:icon="@drawable/ic_picture_as_pdf"
+        app:iconTint="?attr/colorOnSurface"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:title="Settings"
+        android:icon="@drawable/ic_palette"
+        app:iconTint="?attr/colorOnSurface"
+        app:showAsAction="never" />
+
+</menu>

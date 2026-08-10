@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- Disable the given check in this project -->
+    <issue id="HardcodedText" severity="ignore" />
+    <issue id="ContentDescription" severity="ignore" />
+    <!-- Page View captures touch coordinates on the body TextView/NestedScrollView for the
+         long-press-to-set-continuation gesture. We deliberately don't override performClick
+         on those (long-click + scroll already cover the relevant a11y semantics for a reading
+         surface) — silence the lint that would otherwise flag every setOnTouchListener call. -->
+    <issue id="ClickableViewAccessibility" severity="ignore" />
+
+    <!-- Enable the given check in this project -->
+    <issue id="NewApi" severity="warning" />
+
+</lint>

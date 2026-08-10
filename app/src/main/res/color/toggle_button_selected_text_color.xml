@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Companion to toggle_button_selected_background_tint: when the button is checked the
+     background is colorPrimary, so the label flips to colorOnPrimary for contrast; otherwise
+     the label uses the surface foreground so the unchecked state reads as a normal outlined
+     button. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true" android:color="?attr/colorOnPrimary" />
+    <item android:color="?attr/colorOnSurface" />
+</selector>

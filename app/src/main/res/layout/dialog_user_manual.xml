@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Scrollable container for the User Manual dialog. The MaterialAlertDialog hosting this
+     view supplies its own title row + positive button, so this layout only owns the body
+     content. NestedScrollView (rather than ScrollView) is used so the dialog plays nicely
+     with any future nested-scrolling parents the host theme might insert. The inner
+     TextView is populated at runtime via Html.fromHtml(R.string.user_manual_content_html)
+     so the manual stays a pure-strings.xml resource — no per-section view inflation. -->
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="false">
+
+    <TextView
+        android:id="@+id/userManualBody"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="8dp"
+        android:textAppearance="?attr/textAppearanceBody1"
+        android:textColor="?attr/colorOnSurface"
+        android:lineSpacingMultiplier="1.25"
+        android:textIsSelectable="true" />
+
+</androidx.core.widget.NestedScrollView>

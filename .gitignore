@@ -1,0 +1,36 @@
+# --- Gradle / build ----------------------------------------------------------
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# --- Android -----------------------------------------------------------------
+# local.properties records this machine's SDK path.
+local.properties
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+captures/
+.externalNativeBuild/
+.cxx/
+output-metadata.json
+release/
+
+# --- Kotlin ------------------------------------------------------------------
+.kotlin/
+
+# --- IDE ---------------------------------------------------------------------
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# --- Logs / OS ---------------------------------------------------------------
+*.log
+hs_err_pid*
+.DS_Store
+Thumbs.db
+
+# --- Tooling -----------------------------------------------------------------
+.claude/settings.local.json

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp">
+
+    <com.google.android.material.chip.Chip
+        android:id="@+id/tagChip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Selected Tag"
+        app:closeIconVisible="true"
+        style="@style/Widget.Material3.Chip.Input" />
+
+</FrameLayout>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="green_500">#4CAF50</color>
+    
+    <!-- Switch colors for visibility on dark background -->
+    <color name="switch_thumb_on">#FFFFFFFF</color>
+    <color name="switch_thumb_off">#FFB0B0B0</color>
+    <color name="switch_track_on">#FF4CAF50</color>
+    <color name="switch_track_off">#FF424242</color>
+
+    <!-- Semi-transparent black painted by DimMaskView (activity-level overlay) around the
+         rsvpDisplayCard cutout when the opt-in "Dim Surrounding Screen" setting is on and
+         RSVP state is Playing. -->
+    <color name="reader_dim_overlay">#E6000000</color>
+</resources>

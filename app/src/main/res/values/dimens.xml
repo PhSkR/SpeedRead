@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Big portrait hold-to-play / tap-to-toggle FAB. Doubled from the original 120dp so the
+         primary playback control is the unmistakable focal point of the reader controls strip. -->
+    <dimen name="hold_to_play_button_size">240dp</dimen>
+
+    <!-- Base top margin for the document title in fragment_reading.xml. Read in
+         ReadingFragment when applying the status-bar window inset so the inset can be
+         added on top of this base margin without hardcoding 16dp in two places. -->
+    <dimen name="reading_title_margin_top">16dp</dimen>
+
+    <!-- translationZ applied to the activity-level DimMaskView so it draws above the
+         Material BottomNavigationView (which has built-in elevation) and any other
+         elevated surface inside the activity. Picked well above any default Material
+         elevation so theme bumps don't silently regress dim coverage. -->
+    <dimen name="dim_overlay_translation_z">16dp</dimen>
+
+    <!-- Margin for the always-visible TTS FAB on PageViewActivity. Kept clear of the
+         page-indicator pill (48dp bottom margin) so the two never visually collide in
+         continuous mode where the indicator is anchored bottom-center. -->
+    <dimen name="page_view_fab_margin">24dp</dimen>
+
+    <!-- Vertical spacing between the TTS FAB and the secondary "scroll to highlighted
+         word" mini-FAB stacked above it. Sized so the smaller FAB visually nests against
+         the primary one without touching, matching Material Design's stacked-FAB rhythm. -->
+    <dimen name="page_view_fab_stack_spacing">8dp</dimen>
+
+    <!-- Bottom margin for the mini "scroll to highlight" FAB. Sums the primary TTS FAB's
+         own bottom margin (page_view_fab_margin = 24dp), the standard FAB visible diameter
+         (56dp), and the stack spacing (page_view_fab_stack_spacing = 8dp) so the mini FAB
+         sits exactly one "FAB + gap" unit above the TTS FAB regardless of theme density.
+         Encoded as a single dimen so changing the primary FAB margin only requires
+         updating both values together (FrameLayout does not stack children automatically). -->
+    <dimen name="page_view_scroll_fab_bottom_margin">88dp</dimen>
+</resources>

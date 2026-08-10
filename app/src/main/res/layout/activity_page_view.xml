@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Full-screen Page View. Pages fill the entire screen edge-to-edge; a floating overlay
+     (toolbar + bottom bar) is toggled on tap and auto-hides. No persistent chrome.
+     Two content layers: pagesRecyclerView for paged (swipe) text + native PDF; the
+     continuousTextScroll layer for CONTINUOUS scroll mode in text documents (single
+     scrollable TextView holding the full document, so pages can never end short of the
+     viewport). The activity toggles visibility based on ThemeManager.pageViewScrollMode
+     and the current document's render mode (text vs PDF). -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
+    tools:context=".PageViewActivity">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/pagesRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        tools:listitem="@layout/item_page" />
+
+    <!-- Floating overlay: toolbar at top + page indicator at bottom. Visibility toggled on tap. -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_gravity="top"
+        android:background="?attr/colorSurface"
+        android:elevation="4dp"
+        android:fitsSystemWindows="true"
+        android:visibility="gone"
+        app:title="Document" />
+
+    <TextView
+        android:id="@+id/pageIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="48dp"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        android:background="@drawable/page_indicator_pill"
+        android:textAppearance="?attr/textAppearanceBody2"
+        android:textColor="?attr/colorOnSurface"
+        android:elevation="4dp"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="Tap to jump to page"
+        tools:text="1 / 1"
+        tools:visibility="visible" />
+
+    <!-- Bookmarks FAB — visible only in Page View Only mode alongside the overlay.
+         Positioned bottom-start so it mirrors the play FAB on the opposite corner. -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/bookmarksFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_marginStart="@dimen/page_view_fab_margin"
+        android:layout_marginBottom="@dimen/page_view_fab_margin"
+        android:contentDescription="@string/bookmarks"
+        android:src="@drawable/ic_bookmark"
+        android:visibility="gone"
+        app:tint="?attr/colorOnSurface" />
+
+    <!-- Always-visible TTS play/pause FAB. Toolbar is dismissed in immersive mode (only
+         shown on tap), so the menu Listen action would be undiscoverable on its own. The
+         FAB guarantees the playback control is reachable any time the user is reading. -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/ttsFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="@dimen/page_view_fab_margin"
+        android:layout_marginBottom="@dimen/page_view_fab_margin"
+        android:contentDescription="@string/page_view_listen"
+        android:src="@drawable/ic_volume_up"
+        app:tint="?attr/colorOnSurface" />
+
+    <!-- Mini FAB stacked above the TTS FAB. Tapping scrolls/jumps the visible content layer
+         (continuous scroll OR paged RecyclerView) to the currently highlighted word — the
+         live TTS-spoken word during listening, otherwise the static RSVP-resume highlight.
+         Visibility is driven from the activity (PageViewActivity.refreshScrollToHighlightFab):
+         hidden when there's no highlight, hidden in PDF mode (no per-word position data),
+         and hidden when the highlight is already in view so the control is unobtrusive. -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/scrollToHighlightFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="@dimen/page_view_fab_margin"
+        android:layout_marginBottom="@dimen/page_view_scroll_fab_bottom_margin"
+        android:contentDescription="@string/page_view_scroll_to_highlight"
+        android:src="@drawable/ic_my_location"
+        android:visibility="gone"
+        app:fabSize="mini"
+        app:tint="?attr/colorOnSurface" />
+
+</FrameLayout>
