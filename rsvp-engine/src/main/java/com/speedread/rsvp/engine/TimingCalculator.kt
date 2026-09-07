@@ -39,7 +39,12 @@ class DefaultTimingCalculator : TimingCalculator {
 
     private fun calculatePunctuationDelay(text: String, timing: PunctuationTiming): Long {
         if (text.isEmpty()) return 0L
-        val lastChar = text.last()
+        var i = text.length - 1
+        while (i >= 0 && text[i] in EngineConstants.CLOSING_PUNCTUATION) {
+            i--
+        }
+        if (i < 0) return 0L
+        val lastChar = text[i]
         return PunctuationTiming.getPauseForCharacter(lastChar, timing).toLong()
     }
 }

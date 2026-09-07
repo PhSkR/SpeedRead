@@ -386,4 +386,30 @@ class PageViewViewModelTest {
             assertEquals(page.wordStarts.size, page.continuousWordStarts.size)
         }
     }
+
+    @Test
+    fun getBookmarksForCurrentDocument_whenTextIsEmptyAndNoHash_returnsEmpty() = runTest {
+        val bookmarks = viewModel.getBookmarksForCurrentDocument()
+        assertTrue(bookmarks.isEmpty())
+    }
+
+    @Test
+    fun createBookmark_whenTextIsEmpty_doesNotCallRepository() = runTest {
+        val bookmarkRepo = mockk<BookmarkRepository>(relaxed = true)
+        val vm = PageViewViewModel(
+            context = mockk<Context>(relaxed = true),
+            bookmarkRepository = bookmarkRepo,
+            savedDocumentRepository = mockk(relaxed = true),
+            pdfRenderer = mockk<PdfPageRenderer>(relaxed = true),
+            rsvpSettingsManager = mockk<RsvpSettingsManager>(relaxed = true),
+            textProcessor = DefaultTextProcessor(),
+            tokenCache = PageViewTokenCache(mockk(relaxed = true)),
+            figureImageStore = mockk(relaxed = true)
+        )
+        vm.createBookmark("Bookmark", 0)
+        advanceUntilIdle()
+        io.mockk.coVerify(exactly = 0) {
+            bookmarkRepo.createBookmark(any(), any(), any(), any(), any(), any(), any(), any())
+        }
+    }
 }

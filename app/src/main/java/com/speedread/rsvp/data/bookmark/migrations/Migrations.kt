@@ -34,6 +34,18 @@ internal val MIGRATION_11_12: Migration = object : Migration(11, 12) {
     }
 }
 
+/**
+ * v12 -> v13: indices on saved_documents(contentHash) and bookmarks(textHash) to optimize
+ * lookups and cascade deletions.
+ */
+internal val MIGRATION_12_13: Migration = object : Migration(12, 13) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_saved_documents_contentHash ON saved_documents(contentHash)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_bookmarks_textHash ON bookmarks(textHash)")
+    }
+}
+
 internal val ALL_MIGRATIONS: Array<Migration> = arrayOf(
-    MIGRATION_11_12
+    MIGRATION_11_12,
+    MIGRATION_12_13
 )

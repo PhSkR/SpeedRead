@@ -1015,9 +1015,9 @@ class ReadingViewModel @Inject constructor(
                 null
             }
             if (singleWordTokens != null) {
-                playbackCoordinator.loadPreTokenized(singleWordTokens)
+                playbackCoordinator.loadPreTokenized(singleWordTokens, document.id, contentHash)
             } else {
-                playbackCoordinator.loadText(content)
+                playbackCoordinator.loadText(content, document.id, contentHash)
                 val freshTokens = playbackCoordinator.getSingleWordTokens()
                 val cached = freshTokens.map { CachedToken(t = it.text, b = it.trailingBreak?.name) }
                 tokenCacheStore.save(contentHash, cached)

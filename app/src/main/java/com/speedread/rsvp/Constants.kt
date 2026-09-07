@@ -209,6 +209,8 @@ object Constants {
     // File handling
     const val FILE_READ_BUFFER_SIZE = 8192 // 8KB buffer
     const val MAX_FILENAME_LENGTH = 255
+    const val DOCUMENTS_FOLDER_NAME = "SpeedReadDocuments"
+    val SUPPORTED_EXTENSIONS = setOf("pdf", "epub", "txt")
 
     // Supported document MIME types. Used by the file-share intent path (ACTION_SEND with
     // EXTRA_STREAM) so the type-sniff logic stays in lockstep with the manifest intent filters
@@ -274,6 +276,7 @@ object Constants {
     const val FIGURE_CACHE_DIR = "figures"
     // Object-replacement character (U+FFFC) mounted in page text where an inline figure renders.
     const val FIGURE_PLACEHOLDER_CHAR = '\uFFFC'
+    const val FIGURE_PLACEHOLDER_COLOR = 0x14808080
     const val FIGURE_RENDER_TARGET_WIDTH = 1080
     const val FIGURE_PAGE_RENDER_WIDTH = 1600
     const val FIGURE_WEBP_QUALITY = 90

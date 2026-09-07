@@ -51,6 +51,9 @@ interface BookmarkDao {
     
     @Query("DELETE FROM bookmarks WHERE id IN (:bookmarkIds)")
     suspend fun deleteBookmarksByIds(bookmarkIds: List<Long>)
+
+    @Query("DELETE FROM bookmarks WHERE textHash = :textHash")
+    suspend fun deleteBookmarksByTextHash(textHash: String)
     
     @Query("SELECT * FROM bookmarks WHERE textHash = :textHash ORDER BY createdAt DESC")
     fun getBookmarksForText(textHash: String): Flow<List<Bookmark>>

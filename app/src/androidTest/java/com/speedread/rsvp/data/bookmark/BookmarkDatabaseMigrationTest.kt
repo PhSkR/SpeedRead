@@ -4,6 +4,7 @@ import androidx.room.testing.MigrationTestHelper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.speedread.rsvp.data.bookmark.migrations.ALL_MIGRATIONS
+import com.speedread.rsvp.data.bookmark.migrations.MIGRATION_12_13
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -11,7 +12,7 @@ import org.junit.runner.RunWith
 /**
  * Smoke tests for BookmarkDatabase migrations.
  *
- * Validates that the current schema (v11) opens cleanly via [MigrationTestHelper]
+ * Validates that the current schema (v13) opens cleanly via [MigrationTestHelper]
  * from the exported JSON under `app/schemas/`. When a new schema version ships,
  * add a matching test that opens the old version, runs the migration in
  * [ALL_MIGRATIONS], and asserts the resulting schema matches the new JSON.
@@ -44,8 +45,14 @@ class BookmarkDatabaseMigrationTest {
         runtimeDb.close()
     }
 
+    @Test
+    fun migrate12To13() {
+        helper.createDatabase(TEST_DB_NAME, 12).close()
+        helper.runMigrationsAndValidate(TEST_DB_NAME, 13, true, MIGRATION_12_13)
+    }
+
     companion object {
         private const val TEST_DB_NAME = "migration-test.db"
-        private const val CURRENT_VERSION = 11
+        private const val CURRENT_VERSION = 13
     }
 }

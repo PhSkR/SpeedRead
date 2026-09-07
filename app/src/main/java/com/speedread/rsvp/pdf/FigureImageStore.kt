@@ -102,6 +102,31 @@ class FigureImageStore @Inject constructor(
         }
     }
 
+    /**
+     * Purges cached figures for [contentHash]: deletes cached PDF copies in cacheDir,
+     * figure WebP crops directory in filesDir, and clears in-memory bitmaps.
+     */
+    fun deleteFiguresForDocument(contentHash: String) {
+        try {
+            val hashPrefix = contentHash.take(HASH_PREFIX_LENGTH)
+            val pdfCopy = File(context.cacheDir, "${Constants.FIGURE_CACHE_DIR}_src_$hashPrefix.pdf")
+            if (pdfCopy.exists()) {
+                pdfCopy.delete()
+            }
+            val cropsDir = File(File(context.filesDir, Constants.FIGURE_CACHE_DIR), hashPrefix)
+            if (cropsDir.exists()) {
+                cropsDir.deleteRecursively()
+            }
+            memoryCache.snapshot().keys.forEach { key ->
+                if (key.startsWith("$contentHash:")) {
+                    memoryCache.remove(key)
+                }
+            }
+        } catch (e: Exception) {
+            Logger.w(TAG, "Failed to delete figures for document $contentHash", e)
+        }
+    }
+
     private suspend fun renderAndPersist(
         document: SavedDocument,
         region: FigureRegion,
@@ -186,7 +211,7 @@ class FigureImageStore @Inject constructor(
     }
 
     private fun localPdfCopy(contentHash: String, uriString: String): File? {
-        val target = File(context.cacheDir, "${Constants.FIGURE_CACHE_DIR}_src_${contentHash.take(16)}.pdf")
+        val target = File(context.cacheDir, "${Constants.FIGURE_CACHE_DIR}_src_${contentHash.take(HASH_PREFIX_LENGTH)}.pdf")
         if (target.exists() && target.length() > 0) return target
         return try {
             context.contentResolver.openInputStream(Uri.parse(uriString))?.use { input ->
@@ -201,7 +226,7 @@ class FigureImageStore @Inject constructor(
     }
 
     private fun figureFile(contentHash: String, figureIndex: Int): File =
-        File(File(context.filesDir, Constants.FIGURE_CACHE_DIR), "${contentHash.take(16)}/f$figureIndex.webp")
+        File(File(context.filesDir, Constants.FIGURE_CACHE_DIR), "${contentHash.take(HASH_PREFIX_LENGTH)}/f$figureIndex.webp")
 
     private fun webpFormat(): Bitmap.CompressFormat =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -213,5 +238,6 @@ class FigureImageStore @Inject constructor(
 
     private companion object {
         const val TAG = "FigureImageStore"
+        const val HASH_PREFIX_LENGTH = 16
     }
 }

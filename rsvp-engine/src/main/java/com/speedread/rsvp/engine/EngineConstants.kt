@@ -19,6 +19,15 @@ object EngineConstants {
     const val DEFAULT_LINE_BREAK_PAUSE = 100 // milliseconds
     const val DEFAULT_PARAGRAPH_PAUSE = 500  // milliseconds
 
+    // Closing punctuation that may follow a sentence- or clause-ending punctuation mark
+    // (e.g. in dialogue, quotations, or parenthetical clauses).
+    val CLOSING_PUNCTUATION: Set<Char> = setOf(
+        '"', '\'', ')', ']', '}',
+        '’', // U+2019 right single quote
+        '”', // U+201D right double quote
+        '»'  // U+00BB right-pointing double angle quotation mark
+    )
+
     // Word length timing — scales display duration by character count
     const val DEFAULT_WORD_LENGTH_BASELINE = 5
     const val DEFAULT_WORD_LENGTH_SCALING_PERCENT = 8

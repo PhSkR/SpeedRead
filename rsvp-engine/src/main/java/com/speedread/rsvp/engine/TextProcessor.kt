@@ -200,9 +200,7 @@ class DefaultTextProcessor : TextProcessor {
         private val SENTENCE_FINAL_CHARS = setOf('.', '!', '?', ':', ';', Char(0x2026))
 
         // Closers that may wrap sentence-final punctuation: straight/curly quotes, brackets.
-        private val CLOSING_PUNCTUATION = setOf(
-            '"', '\'', ')', ']', '}', Char(0x2019), Char(0x201D)
-        )
+        private val CLOSING_PUNCTUATION = EngineConstants.CLOSING_PUNCTUATION
     }
 
     private fun createSingleWordChunks(tokens: List<TokenWithBreak>): List<RsvpWord> {

@@ -1,7 +1,9 @@
 package com.speedread.rsvp.data.document
 
+import com.speedread.rsvp.data.bookmark.BookmarkDao
 import com.speedread.rsvp.data.bookmark.BookmarkSource
 import com.speedread.rsvp.data.document.DocumentJson.encodeToJson
+import com.speedread.rsvp.pdf.FigureImageStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -10,12 +12,16 @@ import kotlinx.coroutines.withContext
 import java.security.MessageDigest
 import java.util.Date
 import javax.inject.Inject
+import com.speedread.rsvp.data.bookmark.BookmarkRepository
 import javax.inject.Singleton
 
 @Singleton
 class SavedDocumentRepository @Inject constructor(
     private val savedDocumentDao: SavedDocumentDao,
-    private val documentStorageManager: DocumentStorageManager
+    private val documentStorageManager: DocumentStorageManager,
+    private val figureImageStore: FigureImageStore,
+    private val bookmarkDao: BookmarkDao,
+    private val bookmarkRepository: BookmarkRepository
 ) {
     
     fun getAllDocuments(): Flow<List<SavedDocument>> {
@@ -118,7 +124,6 @@ class SavedDocumentRepository @Inject constructor(
             
             val wordCount = countWords(content)
             val now = Date()
-            val fileSize = content.toByteArray(Charsets.UTF_8).size.toLong()
             
             val document = when (storageResult) {
                 is DocumentStorageResult.Inline -> {
@@ -129,7 +134,7 @@ class SavedDocumentRepository @Inject constructor(
                         isContentExternal = false,
                         contentFilePath = null,
                         originalFileName = originalFileName,
-                        fileSize = fileSize,
+                        fileSize = storageResult.sizeBytes.toLong(),
                         wordCount = wordCount,
                         source = source,
                         originalUri = originalUri,
@@ -179,6 +184,22 @@ class SavedDocumentRepository @Inject constructor(
     
     suspend fun deleteDocument(document: SavedDocument) {
         withContext(Dispatchers.IO) {
+            // Cascade cleanup: figures and bookmarks
+            figureImageStore.deleteFiguresForDocument(document.contentHash)
+
+            // Delete bookmarks using modern SHA-256 textHash if content is loadable,
+            // plus legacy MD5 document.contentHash fallback.
+            try {
+                val content = documentStorageManager.loadDocumentContent(document)
+                if (content.isNotEmpty()) {
+                    val sha256Hash = bookmarkRepository.generateTextHash(content)
+                    bookmarkDao.deleteBookmarksByTextHash(sha256Hash)
+                }
+            } catch (e: Exception) {
+                // Ignore load error (e.g. missing external file), still purge by MD5
+            }
+            bookmarkDao.deleteBookmarksByTextHash(document.contentHash)
+
             // Delete external content file if it exists
             documentStorageManager.deleteDocumentContent(document)
             // Delete database record

@@ -13,7 +13,7 @@ import com.speedread.rsvp.data.tags.TagDao
 
 @Database(
     entities = [Bookmark::class, SavedDocument::class, Tag::class, DocumentTag::class],
-    version = 12,
+    version = 13,
     exportSchema = true
 )
 @TypeConverters(DateConverter::class, BookmarkSourceConverter::class)

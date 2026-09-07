@@ -44,7 +44,7 @@ class DocumentStorageManager @Inject constructor(
         when {
             textSizeBytes <= INLINE_SIZE_LIMIT -> {
                 // Small files: store directly in database
-                DocumentStorageResult.Inline(content)
+                DocumentStorageResult.Inline(content, textSizeBytes)
             }
             textSizeBytes <= FILE_SIZE_LIMIT -> {
                 // Large files: store as external file
@@ -155,8 +155,9 @@ class DocumentStorageManager @Inject constructor(
  * Result of preparing document for storage
  */
 sealed class DocumentStorageResult {
-    data class Inline(val content: String) : DocumentStorageResult()
-    data class External(val filePath: String, val sizeBytes: Int) : DocumentStorageResult()
+    abstract val sizeBytes: Int
+    data class Inline(val content: String, override val sizeBytes: Int) : DocumentStorageResult()
+    data class External(val filePath: String, override val sizeBytes: Int) : DocumentStorageResult()
 }
 
 /**

@@ -32,6 +32,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -185,6 +186,7 @@ class NeuralTtsEngine @Inject constructor(
         sessionGuid = UUID.randomUUID().toString()
         cancelSynthesis()
         audioTrack?.pause()
+        audioTrack?.flush()
         audioFocusHelper.release()
         _state.value = TtsState.Paused
     }
@@ -283,16 +285,54 @@ class NeuralTtsEngine @Inject constructor(
         try { tts.release() } catch (e: Exception) { Logger.w(TAG, "offlineTts.release failed: ${e.message}") }
     }
 
+    private class SynthesizedAudio(
+        val utterance: TtsUtterance,
+        val sampleRate: Int,
+        val samples: FloatArray
+    )
+
+    private suspend fun synthesizeUtterance(tts: OfflineTts, utterance: TtsUtterance): SynthesizedAudio? =
+        withContext(Dispatchers.IO) {
+            if (!isActive || isPausing.get()) return@withContext null
+            val audio = tts.generate(utterance.text, sid = 0, speed = settings.speechRate)
+            SynthesizedAudio(utterance, audio.sampleRate, audio.samples)
+        }
+
     private fun startSynthesisLoop(voice: NeuralVoice) {
         val mySession = sessionGuid
         synthesisJob = engineScope.launch {
             try {
+                val tts = offlineTts ?: return@launch
+                if (chunkIndex >= utterances.size) return@launch
+
+                // Synthesize utterance N initially
+                var currentAudio = synthesizeUtterance(tts, utterances[chunkIndex])
+
                 while (isActive && !isPausing.get() && mySession == sessionGuid) {
-                    if (chunkIndex >= utterances.size) break
-                    val utterance = utterances[chunkIndex]
-                    playUtterance(voice, utterance, mySession)
-                    if (mySession != sessionGuid || isPausing.get()) break
+                    if (currentAudio == null) break
+
+                    // 1-utterance lookahead pipeline: synthesize utterance N+1 asynchronously on IO
+                    // while utterance N is playing via AudioTrack
+                    val nextChunkIndex = chunkIndex + 1
+                    val nextAudioDeferred = if (nextChunkIndex < utterances.size) {
+                        async(Dispatchers.IO) {
+                            synthesizeUtterance(tts, utterances[nextChunkIndex])
+                        }
+                    } else {
+                        null
+                    }
+
+                    if (currentAudio.samples.isNotEmpty()) {
+                        playAudio(currentAudio, mySession)
+                    }
+
+                    if (mySession != sessionGuid || isPausing.get() || !isActive) {
+                        nextAudioDeferred?.cancel()
+                        break
+                    }
+
                     chunkIndex++
+                    currentAudio = nextAudioDeferred?.await()
                 }
                 if (mySession == sessionGuid && !isPausing.get() && chunkIndex >= utterances.size) {
                     _state.value = TtsState.Finished
@@ -309,16 +349,11 @@ class NeuralTtsEngine @Inject constructor(
         }
     }
 
-    private suspend fun playUtterance(voice: NeuralVoice, utterance: TtsUtterance, mySession: String) {
-        val tts = offlineTts ?: return
-        val audio = withContext(Dispatchers.IO) {
-            tts.generate(utterance.text, sid = 0, speed = settings.speechRate)
-        }
-        if (mySession != sessionGuid || isPausing.get()) return
-
+    private suspend fun playAudio(audio: SynthesizedAudio, mySession: String) {
         val sampleRate = audio.sampleRate
         val samples = audio.samples
         if (samples.isEmpty()) return
+        val utterance = audio.utterance
 
         ensureAudioTrack(sampleRate)
         val track = audioTrack ?: return
@@ -376,7 +411,18 @@ class NeuralTtsEngine @Inject constructor(
             }
 
             try {
+                var offset = 0
+                // Prime the AudioTrack by writing the first slice of audio before calling track.play()
+                if (mySession == sessionGuid && !isPausing.get()) {
+                    val firstSlice = minOf(Constants.TTS_NEURAL_WRITE_SLICE_FRAMES, samples.size)
+                    val written = track.write(samples, 0, firstSlice, AudioTrack.WRITE_BLOCKING)
+                    if (written > 0) {
+                        offset += written
+                    }
+                }
+
                 track.play()
+
                 withContext(Dispatchers.IO) {
                     // Feed the track in bounded slices instead of one full-utterance blocking
                     // write. WRITE_BLOCKING on MODE_STREAM returns only as the data plays out,
@@ -385,7 +431,6 @@ class NeuralTtsEngine @Inject constructor(
                     // (speech kept going seconds after the tap, including over incoming
                     // calls via the audio-focus-loss path). Slices cap that latency at
                     // roughly TTS_NEURAL_WRITE_SLICE_FRAMES / sampleRate seconds.
-                    var offset = 0
                     while (offset < samples.size && isActive &&
                         mySession == sessionGuid && !isPausing.get()
                     ) {
@@ -413,11 +458,12 @@ class NeuralTtsEngine @Inject constructor(
         if (existing != null && existing.sampleRate == sampleRate) return
         stopAndReleaseAudioTrack()
 
-        val bufferSize = AudioTrack.getMinBufferSize(
+        val minBuf = AudioTrack.getMinBufferSize(
             sampleRate,
             AudioFormat.CHANNEL_OUT_MONO,
             AudioFormat.ENCODING_PCM_FLOAT
-        ).coerceAtLeast(4096)
+        )
+        val bufferSize = (minBuf * 2).coerceAtLeast(8192)
 
         audioTrack = AudioTrack.Builder()
             .setAudioAttributes(

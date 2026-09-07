@@ -18,11 +18,6 @@ class DocumentsManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     
-    companion object {
-        private const val DOCUMENTS_FOLDER_NAME = "SpeedReadDocuments"
-        private val SUPPORTED_EXTENSIONS = setOf("pdf", "epub", "txt")
-    }
-    
     /**
      * Get the app's documents folder 
      * Uses app-specific directory to avoid permission issues
@@ -31,7 +26,7 @@ class DocumentsManager @Inject constructor(
         return try {
             // Use app-specific external directory (no permissions needed on Android 4.4+)
             val appExternalDir = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
-            val documentsDir = File(appExternalDir, DOCUMENTS_FOLDER_NAME)
+            val documentsDir = File(appExternalDir, Constants.DOCUMENTS_FOLDER_NAME)
             
             // Ensure directory exists
             if (!documentsDir.exists()) {
@@ -42,7 +37,7 @@ class DocumentsManager @Inject constructor(
 
         } catch (e: Exception) {
             Logger.w("DocumentsManager", "External documents dir unavailable; falling back to internal storage", e)
-            val fallbackDir = File(context.filesDir, DOCUMENTS_FOLDER_NAME)
+            val fallbackDir = File(context.filesDir, Constants.DOCUMENTS_FOLDER_NAME)
             fallbackDir.mkdirs()
             fallbackDir
         }
@@ -82,7 +77,7 @@ class DocumentsManager @Inject constructor(
                     try {
                         file.isFile &&
                         file.canRead() &&
-                        file.extension.lowercase() in SUPPORTED_EXTENSIONS
+                        file.extension.lowercase() in Constants.SUPPORTED_EXTENSIONS
                     } catch (e: Exception) {
                         Logger.w("DocumentsManager", "Filter failed for ${file?.name}", e)
                         false

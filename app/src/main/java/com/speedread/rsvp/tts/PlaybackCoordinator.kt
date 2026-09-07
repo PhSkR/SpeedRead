@@ -191,8 +191,20 @@ class PlaybackCoordinator @Inject constructor(
 
     fun getLoadGeneration(): Long = loadGeneration.get()
 
+    @Volatile private var currentDocumentId: Long? = null
+    @Volatile private var currentContentHash: String? = null
+
+    fun getCurrentDocumentId(): Long? = currentDocumentId
+    fun getCurrentContentHash(): String? = currentContentHash
+
     /** Source of truth: RSVP engine tokenizes and holds the word list. TTS consumes its output. */
-    suspend fun loadText(text: String) {
+    suspend fun loadText(
+        text: String,
+        documentId: Long? = null,
+        contentHash: String? = null
+    ) = mutex.withLock {
+        currentDocumentId = documentId
+        currentContentHash = contentHash
         loadGeneration.incrementAndGet()
         rsvpEngine.loadText(text)
         // If TTS mode was active, sync the new word list to the TTS engine immediately so a
@@ -202,7 +214,13 @@ class PlaybackCoordinator @Inject constructor(
         }
     }
 
-    suspend fun loadPreTokenized(singleWordTokens: List<RsvpWord>) {
+    suspend fun loadPreTokenized(
+        singleWordTokens: List<RsvpWord>,
+        documentId: Long? = null,
+        contentHash: String? = null
+    ) = mutex.withLock {
+        currentDocumentId = documentId
+        currentContentHash = contentHash
         loadGeneration.incrementAndGet()
         rsvpEngine.loadPreTokenized(singleWordTokens)
         if (_activeMode.value == PlaybackMode.TTS) {
@@ -213,7 +231,19 @@ class PlaybackCoordinator @Inject constructor(
     fun getSingleWordTokens(): List<RsvpWord> = rsvpEngine.getSingleWordTokens()
 
     /** Progress-reporting variant, mirrors RsvpEngine.loadTextWithProgress. */
-    suspend fun loadTextWithProgress(text: String, onProgress: (Float) -> Unit) {
+    suspend fun loadTextWithProgress(
+        text: String,
+        onProgress: (Float) -> Unit
+    ) = loadTextWithProgress(text, null, null, onProgress)
+
+    suspend fun loadTextWithProgress(
+        text: String,
+        documentId: Long? = null,
+        contentHash: String? = null,
+        onProgress: (Float) -> Unit
+    ) = mutex.withLock {
+        currentDocumentId = documentId
+        currentContentHash = contentHash
         loadGeneration.incrementAndGet()
         rsvpEngine.loadTextWithProgress(text, onProgress)
         if (_activeMode.value == PlaybackMode.TTS) {

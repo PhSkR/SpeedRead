@@ -62,8 +62,8 @@ class RsvpSettingsManager @Inject constructor(
         private const val KEY_LAST_PLAYBACK_MODE = "last_playback_mode"
 
         // Default values
-        private const val DEFAULT_WPM = 250
-        private const val DEFAULT_CHUNK_SIZE = 1
+        private const val DEFAULT_WPM = EngineConstants.DEFAULT_WPM
+        private const val DEFAULT_CHUNK_SIZE = EngineConstants.DEFAULT_CHUNK_SIZE
         private const val DEFAULT_ENABLE_ORP = true
         private const val DEFAULT_CENTER_ORP = true
         private const val DEFAULT_ENABLE_PUNCTUATION_PAUSING = true

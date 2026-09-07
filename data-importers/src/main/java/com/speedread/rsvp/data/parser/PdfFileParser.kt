@@ -141,11 +141,7 @@ class PdfFileParser @Inject constructor(
                     top = raw.top,
                     right = raw.right,
                     bottom = raw.bottom,
-                    wordCount = raw.text.trim()
-                        .replace('\r', ' ')
-                        .replace('\n', ' ')
-                        .split(' ')
-                        .count { it.isNotBlank() },
+                    wordCount = countWords(raw.text),
                     gibberish = FigureRegionDetector.isGibberish(raw.text),
                     numericOnly = FigureRegionDetector.isBareNumber(raw.text)
                 )
@@ -222,22 +218,18 @@ class PdfFileParser @Inject constructor(
                         // Skip empty pages to save memory
                         if (pageText.isBlank()) continue
 
-                        val pageWords = pageText.trim()
-                            .replace('\r', ' ')
-                            .replace('\n', ' ')
-                            .split(' ')
-                            .filter { it.isNotBlank() }
+                        val pageWordCount = countWords(pageText)
 
-                        if (pageWords.isNotEmpty()) {
+                        if (pageWordCount > 0) {
                             val startWordIndex = currentWordIndex
-                            val endWordIndex = currentWordIndex + pageWords.size - 1
+                            val endWordIndex = currentWordIndex + pageWordCount - 1
 
                             pageBoundaries.add(
                                 PageBoundary(
                                     pageNumber = pageNum,
                                     startWordIndex = startWordIndex,
                                     endWordIndex = endWordIndex,
-                                    wordCount = pageWords.size
+                                    wordCount = pageWordCount
                                 )
                             )
 
@@ -246,12 +238,12 @@ class PdfFileParser @Inject constructor(
                                     document = document,
                                     pageNum = pageNum,
                                     collectedLines = stripper.collectedLines,
-                                    pageWordCount = pageWords.size,
+                                    pageWordCount = pageWordCount,
                                     startWordIndex = startWordIndex
                                 )
                             )
 
-                            currentWordIndex += pageWords.size
+                            currentWordIndex += pageWordCount
                         }
                         
                         // Add page text to full text with memory management
@@ -302,6 +294,46 @@ class PdfFileParser @Inject constructor(
             } catch (e: Exception) {
                 FileParseResult.Error(e, "Failed to extract text from PDF: ${e.message}")
             }
+        }
+    }
+
+    companion object {
+        private const val CHAR_NO_BREAK_SPACE = 0x00A0
+        private const val CHAR_NARROW_NO_BREAK_SPACE = 0x202F
+        private const val CHAR_ZERO_WIDTH_SPACE = 0x200B
+        private const val CHAR_BOM = 0xFEFF
+
+        /**
+         * Delimiter check aligned with TextProcessor.isWordSeparator(). Recognises
+         * whitespace, ISO control characters (C0 and C1 including NEL 0x0085),
+         * non-breaking spaces, zero-width space, and BOM.
+         */
+        internal fun Char.isWordSeparator(): Boolean = isWhitespace() ||
+            isISOControl() ||
+            this.code == CHAR_NO_BREAK_SPACE ||
+            this.code == CHAR_NARROW_NO_BREAK_SPACE ||
+            this.code == CHAR_ZERO_WIDTH_SPACE ||
+            this.code == CHAR_BOM
+
+        /**
+         * Counts words using delimiter logic consistent with TextProcessor.isWordSeparator()
+         * to prevent PageBoundary start/end word drift against the tokenizer.
+         */
+        internal fun countWords(text: String): Int {
+            var count = 0
+            var inWord = false
+            for (ch in text) {
+                if (ch.isWordSeparator()) {
+                    if (inWord) {
+                        count++
+                        inWord = false
+                    }
+                } else {
+                    inWord = true
+                }
+            }
+            if (inWord) count++
+            return count
         }
     }
 }

@@ -27,7 +27,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -810,7 +812,14 @@ class PageViewViewModel @Inject constructor(
      * will tokenize it identically, so word indices stay aligned across RSVP, Page View
      * highlight, and TTS speech.
      */
-    fun getRawText(): String = currentText
+    fun getRawText(): String {
+        if (currentText.isNotEmpty()) return currentText
+        val doc = _currentDocument.value
+        if (doc != null && !doc.isContentExternal && doc.content.isNotEmpty()) {
+            currentText = doc.content
+        }
+        return currentText
+    }
 
     /**
      * Total word count for this document (single-token chunks). Activity uses this to detect
@@ -1025,21 +1034,52 @@ class PageViewViewModel @Inject constructor(
         }
     }
 
+    private suspend fun ensureCurrentTextLoaded(): String {
+        if (currentText.isNotBlank()) return currentText
+        var document = _currentDocument.value
+        if (document == null && !currentContentHash.isNullOrBlank()) {
+            document = savedDocumentRepository.getDocumentByContentHash(currentContentHash!!)
+            if (document != null) {
+                _currentDocument.value = document
+            }
+        }
+        if (document != null) {
+            val content = loadDocumentContent(document)
+            if (content.isNotBlank()) {
+                currentText = content
+            }
+        }
+        return currentText
+    }
+
     suspend fun getBookmarksForCurrentDocument(): List<com.speedread.rsvp.data.bookmark.BookmarkWithProgress> {
-        if (currentText.isBlank()) return emptyList()
-        return bookmarkRepository.getBookmarksForText(currentText).first()
+        val text = ensureCurrentTextLoaded()
+        if (text.isNotBlank()) {
+            bookmarkRepository.migrateLegacyHashIfPresent(text)
+            return bookmarkRepository.getBookmarksForText(text).first()
+        }
+        val hash = currentContentHash ?: _currentDocument.value?.contentHash
+        if (!hash.isNullOrBlank()) {
+            return bookmarkRepository.getBookmarksForHash(hash).first()
+        }
+        return emptyList()
     }
 
     fun createBookmark(title: String, currentPageIndex: Int) {
         viewModelScope.launch {
             try {
+                val text = ensureCurrentTextLoaded()
+                if (text.isBlank()) {
+                    Logger.w("PageViewViewModel", "Cannot create bookmark: document text is empty")
+                    return@launch
+                }
                 val pagesList = _pages.value
                 if (currentPageIndex >= 0 && currentPageIndex < pagesList.size) {
                     val page = pagesList[currentPageIndex]
 
                     bookmarkRepository.createBookmark(
                         title = title,
-                        fullText = currentText,
+                        fullText = text,
                         wordPosition = page.startWordIndex,
                         pageNumber = page.pageNumber,
                         wpm = rsvpSettingsManager.getCurrentRsvpSettings().wpm,
@@ -1065,6 +1105,11 @@ class PageViewViewModel @Inject constructor(
     fun createBookmarkAtWord(title: String, wordPosition: Int) {
         viewModelScope.launch {
             try {
+                val text = ensureCurrentTextLoaded()
+                if (text.isBlank()) {
+                    Logger.w("PageViewViewModel", "Cannot create bookmark: document text is empty")
+                    return@launch
+                }
                 val safeWord = wordPosition.coerceAtLeast(0)
                 val pagesList = _pages.value
                 val pageNumber = if (pagesList.isNotEmpty()) {
@@ -1075,7 +1120,7 @@ class PageViewViewModel @Inject constructor(
                 }
                 bookmarkRepository.createBookmark(
                     title = title,
-                    fullText = currentText,
+                    fullText = text,
                     wordPosition = safeWord,
                     pageNumber = pageNumber,
                     wpm = rsvpSettingsManager.getCurrentRsvpSettings().wpm,
@@ -1203,38 +1248,41 @@ class PageViewViewModel @Inject constructor(
         if (existing.renderedPage != null || existing.isLoading) return
 
         viewModelScope.launch {
-            // Update the page to show loading
-            val currentPages = _pdfPages.value.toMutableList()
-            if (pageIndex < currentPages.size) {
-                currentPages[pageIndex] = currentPages[pageIndex].copy(isLoading = true, error = null)
-                _pdfPages.value = currentPages
-                
-                // Render the page
-                val result = pdfRenderer.renderPage(pageIndex)
-                result.fold(
-                    onSuccess = { renderedPage ->
-                        val updatedPages = _pdfPages.value.toMutableList()
-                        if (pageIndex < updatedPages.size) {
-                            updatedPages[pageIndex] = updatedPages[pageIndex].copy(
+            // Atomically update the page to show loading
+            _pdfPages.update { pages ->
+                if (pageIndex !in pages.indices) pages
+                else pages.toMutableList().apply {
+                    this[pageIndex] = this[pageIndex].copy(isLoading = true, error = null)
+                }
+            }
+            
+            // Render the page
+            val result = pdfRenderer.renderPage(pageIndex)
+            result.fold(
+                onSuccess = { renderedPage ->
+                    _pdfPages.update { pages ->
+                        if (pageIndex !in pages.indices) pages
+                        else pages.toMutableList().apply {
+                            this[pageIndex] = this[pageIndex].copy(
                                 renderedPage = renderedPage,
                                 isLoading = false,
                                 error = null
                             )
-                            _pdfPages.value = updatedPages
                         }
-                    },
-                    onFailure = { exception ->
-                        val updatedPages = _pdfPages.value.toMutableList()
-                        if (pageIndex < updatedPages.size) {
-                            updatedPages[pageIndex] = updatedPages[pageIndex].copy(
+                    }
+                },
+                onFailure = { exception ->
+                    _pdfPages.update { pages ->
+                        if (pageIndex !in pages.indices) pages
+                        else pages.toMutableList().apply {
+                            this[pageIndex] = this[pageIndex].copy(
                                 isLoading = false,
                                 error = "Failed to render: ${exception.message}"
                             )
-                            _pdfPages.value = updatedPages
                         }
                     }
-                )
-            }
+                }
+            )
         }
     }
     
@@ -1278,24 +1326,25 @@ class PageViewViewModel @Inject constructor(
      * visible viewport — adjust `PDF_BITMAP_KEEP_RANGE` upward in that case.
      */
     private fun evictDistantPdfPages(centerIndex: Int, keepRange: Int = Constants.PDF_BITMAP_KEEP_RANGE) {
-        val current = _pdfPages.value
-        if (current.isEmpty()) return
         val keepStart = centerIndex - keepRange
         val keepEnd = centerIndex + keepRange
-        var changed = false
-        // Only `renderedPage` carries memory weight; `isLoading` and `error` are tiny flags
-        // and the gate `renderedPage != null` already implies (per `renderPdfPage`'s success
-        // path) that `isLoading=false` and `error=null`, so clearing only `renderedPage`
-        // produces an identical result with less noise in the diff.
-        val updated = current.map { item ->
-            if (item.renderedPage != null && (item.pageIndex < keepStart || item.pageIndex > keepEnd)) {
-                changed = true
-                item.copy(renderedPage = null)
-            } else {
-                item
+        _pdfPages.update { current ->
+            if (current.isEmpty()) return@update current
+            var changed = false
+            // Only `renderedPage` carries memory weight; `isLoading` and `error` are tiny flags
+            // and the gate `renderedPage != null` already implies (per `renderPdfPage`'s success
+            // path) that `isLoading=false` and `error=null`, so clearing only `renderedPage`
+            // produces an identical result with less noise in the diff.
+            val updated = current.map { item ->
+                if (item.renderedPage != null && (item.pageIndex < keepStart || item.pageIndex > keepEnd)) {
+                    changed = true
+                    item.copy(renderedPage = null)
+                } else {
+                    item
+                }
             }
+            if (changed) updated else current
         }
-        if (changed) _pdfPages.value = updated
     }
 
     fun switchToPdfMode() {
@@ -1352,7 +1401,9 @@ class PageViewViewModel @Inject constructor(
     
     override fun onCleared() {
         super.onCleared()
-        pdfRenderer.closePdf()
+        runBlocking {
+            pdfRenderer.closePdf()
+        }
         // Eagerly recycle any pinned page bitmaps so native pixel memory is reclaimed
         // immediately on Page View exit instead of waiting for finalizer-driven GC.
         // Safe here because `onCleared` runs after the activity's `onDestroy`, so no

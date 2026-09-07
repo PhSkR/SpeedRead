@@ -1,10 +1,14 @@
 package com.speedread.rsvp.data.bookmark
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.util.Date
 
-@Entity(tableName = "bookmarks")
+@Entity(
+    tableName = "bookmarks",
+    indices = [Index(value = ["textHash"])]
+)
 data class Bookmark(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,

@@ -334,29 +334,58 @@ class NativeTtsEngine @Inject constructor(
 
     private suspend fun awaitInit() {
         kotlinx.coroutines.suspendCancellableCoroutine<Unit> { cont ->
+            var localTts: TextToSpeech? = null
+            var synchronousInitStatus: Int? = null
+
+            fun completeInit(engine: TextToSpeech) {
+                engine.language = Locale.getDefault()
+                engine.setOnUtteranceProgressListener(utteranceListener)
+                _voices.value = snapshotVoices(engine)
+                applyVoiceRateAndPitch()
+                isInitialized = true
+                if (cont.isActive) cont.resumeWith(Result.success(Unit))
+                // On many Android builds (Google TTS in particular), [engine.voices] returns
+                // an incomplete or empty set during the synchronous OnInit callback because
+                // the engine populates its internal voice list asynchronously after the
+                // service binds. The Options voice picker then renders with just the
+                // "Default" sentinel and the user has no way to pick a specific voice.
+                // Retry the snapshot a few times after init to catch the late-arriving list.
+                if (_voices.value.isEmpty()) scheduleVoicesRetry()
+            }
+
             val listener = TextToSpeech.OnInitListener { status ->
+                val engine = localTts ?: tts
+                if (engine == null) {
+                    // Synchronous init: listener fired inside constructor before assignment
+                    synchronousInitStatus = status
+                    return@OnInitListener
+                }
                 if (status == TextToSpeech.SUCCESS) {
-                    val engine = tts ?: return@OnInitListener
-                    engine.language = Locale.getDefault()
-                    engine.setOnUtteranceProgressListener(utteranceListener)
-                    _voices.value = snapshotVoices(engine)
-                    applyVoiceRateAndPitch()
-                    isInitialized = true
-                    if (cont.isActive) cont.resumeWith(Result.success(Unit))
-                    // On many Android builds (Google TTS in particular), [engine.voices] returns
-                    // an incomplete or empty set during the synchronous OnInit callback because
-                    // the engine populates its internal voice list asynchronously after the
-                    // service binds. The Options voice picker then renders with just the
-                    // "Default" sentinel and the user has no way to pick a specific voice.
-                    // Retry the snapshot a few times after init to catch the late-arriving list.
-                    if (_voices.value.isEmpty()) scheduleVoicesRetry()
+                    completeInit(engine)
                 } else {
                     if (cont.isActive) {
                         cont.resumeWith(Result.failure(IllegalStateException("TTS init failed: $status")))
                     }
                 }
             }
-            tts = TextToSpeech(context, listener)
+
+            val instance = TextToSpeech(context, listener)
+            localTts = instance
+            tts = instance
+
+            synchronousInitStatus?.let { status ->
+                if (status == TextToSpeech.SUCCESS) {
+                    completeInit(instance)
+                } else {
+                    if (cont.isActive) {
+                        cont.resumeWith(Result.failure(IllegalStateException("TTS init failed: $status")))
+                    }
+                }
+            }
+
+            cont.invokeOnCancellation {
+                instance.shutdown()
+            }
         }
     }
 

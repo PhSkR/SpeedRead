@@ -20,6 +20,7 @@ import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.speedread.rsvp.Constants
 import com.speedread.rsvp.DocumentPage
 import com.speedread.rsvp.PageFigure
 import com.speedread.rsvp.R
@@ -369,7 +370,7 @@ class PageAdapter(
                 val offset = figureOffsetOf(figure)
                 if (offset < 0 || offset + 1 > spannable.length) continue
                 val height = (available * figure.aspectRatio).toInt().coerceAtLeast(1)
-                val placeholder = ColorDrawable(FIGURE_PLACEHOLDER_COLOR).apply {
+                val placeholder = ColorDrawable(Constants.FIGURE_PLACEHOLDER_COLOR).apply {
                     setBounds(0, 0, available, height)
                 }
                 setFigureSpan(spannable, offset, ImageSpan(placeholder, ImageSpan.ALIGN_BOTTOM))
@@ -617,8 +618,6 @@ class PageAdapter(
     companion object {
         private val PAYLOAD_HIGHLIGHT = Any()
         private const val NO_LINE = -1
-        // Translucent neutral gray shown while a figure bitmap renders/loads.
-        private const val FIGURE_PLACEHOLDER_COLOR = 0x14808080
         const val VIEW_TYPE_PAGED = 0
         const val VIEW_TYPE_CONTINUOUS = 1
 

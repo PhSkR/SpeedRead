@@ -1,6 +1,7 @@
 package com.speedread.rsvp.data.document
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.speedread.rsvp.data.bookmark.BookmarkSource
 import kotlinx.serialization.Serializable
@@ -38,7 +39,10 @@ data class FigureRegion(
     val labelEndWordIndex: Int = -1
 )
 
-@Entity(tableName = "saved_documents")
+@Entity(
+    tableName = "saved_documents",
+    indices = [Index(value = ["contentHash"])]
+)
 data class SavedDocument(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,

@@ -499,10 +499,18 @@ class PageViewActivity : AppCompatActivity() {
                 // count regardless of chunking. getTotalWords() is the CHUNK count, which
                 // never matches the single-token count when chunkSize > 1 — that mismatch
                 // forced a full document re-tokenize on every play tap here.
+                val currentDoc = viewModel.currentDocument.value
                 val targetWordCount = viewModel.getTotalWordCount()
                 val coordinatorCount = playbackCoordinator.getAbsoluteWordCount()
-                if (targetWordCount == 0 || coordinatorCount != targetWordCount) {
-                    playbackCoordinator.loadText(text)
+                val docChanged = currentDoc?.id != playbackCoordinator.getCurrentDocumentId()
+                val hashChanged = currentDoc?.contentHash != playbackCoordinator.getCurrentContentHash()
+
+                if (targetWordCount == 0 || coordinatorCount != targetWordCount || docChanged || hashChanged) {
+                    playbackCoordinator.loadText(
+                        text = text,
+                        documentId = currentDoc?.id,
+                        contentHash = currentDoc?.contentHash
+                    )
                 }
 
                 val resumeWord = resolveExitWordPosition()

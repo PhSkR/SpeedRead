@@ -1,5 +1,6 @@
 package com.speedread.rsvp.data.bookmark
 
+import com.speedread.rsvp.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -15,7 +16,7 @@ class BookmarkRepository @Inject constructor(
     private val bookmarkDao: BookmarkDao
 ) {
     companion object {
-        const val WORDS_PER_PAGE = 250 // Same as MainViewModel
+        const val WORDS_PER_PAGE = Constants.WORDS_PER_PAGE_ESTIMATION // Same as MainViewModel
 
         // Document identity hashing. Bookmarks don't store the original text, only the
         // hash, so we cannot do a schema-side backfill: existing MD5 rows are migrated
@@ -24,6 +25,11 @@ class BookmarkRepository @Inject constructor(
         const val LEGACY_HASH_ALGORITHM = "MD5"
         private const val HASH_STREAMING_THRESHOLD_BYTES = 1_000_000 // 1 MB
         private const val HASH_STREAMING_CHUNK_BYTES = 100_000       // 100 KB
+        private const val PREVIEW_WINDOW_CHARS = 500
+        private const val CHARS_PER_WORD_ESTIMATION = 6
+        private const val PREVIEW_WORDS_BEFORE = 5
+        private const val PREVIEW_WORDS_AFTER = 10
+        private const val PREVIEW_MAX_LENGTH = 97
     }
     
     fun getAllBookmarks(): Flow<List<BookmarkWithProgress>> {
@@ -50,6 +56,12 @@ class BookmarkRepository @Inject constructor(
         // from ReadingViewModel, not here — running the upgrade inside the flow would
         // re-fire on every collector restart.
         val textHash = generateTextHash(text)
+        return bookmarkDao.getBookmarksForText(textHash).map { bookmarks ->
+            bookmarks.map { BookmarkWithProgress.from(it) }
+        }
+    }
+
+    fun getBookmarksForHash(textHash: String): Flow<List<BookmarkWithProgress>> {
         return bookmarkDao.getBookmarksForText(textHash).map { bookmarks ->
             bookmarks.map { BookmarkWithProgress.from(it) }
         }
@@ -282,33 +294,28 @@ class BookmarkRepository @Inject constructor(
     }
     
     private fun generatePreview(text: String, currentPosition: Int): String {
-        // For very large texts, create preview from a small sample around current position
-        if (text.length > 10_000_000) {
-            // Estimate character position from word position (average 5 chars per word)
-            val charPosition = currentPosition * 5
-            val start = maxOf(0, charPosition - 250)
-            val end = minOf(text.length, charPosition + 250)
-            val sample = text.substring(start, end)
-            
-            // Get a few words around the position
-            val words = sample.replace('\n', ' ').replace('\r', ' ').split(' ')
-                .filter { it.isNotBlank() }
-            
-            val preview = words.take(15).joinToString(" ")
-            return if (preview.length > 97) {
-                preview.take(97) + "..."
-            } else preview
-        } else {
-            // For smaller texts, use the original approach but without regex
-            val words = text.replace('\n', ' ').replace('\r', ' ').split(' ')
-                .filter { it.isNotBlank() }
-            val startPos = maxOf(0, currentPosition - 5)
-            val endPos = minOf(words.size, currentPosition + 10)
-            val preview = words.subList(startPos, endPos).joinToString(" ")
-            return if (preview.length > 100) {
-                preview.take(97) + "..."
-            } else preview
-        }
+        if (text.isBlank()) return ""
+
+        // Estimate character position from word position (average 6 chars per word)
+        // and slice a window of ±500 chars to avoid tokenizing full documents on autosave
+        val charPosition = (currentPosition * CHARS_PER_WORD_ESTIMATION).coerceIn(0, text.length)
+        val start = (charPosition - PREVIEW_WINDOW_CHARS).coerceAtLeast(0)
+        val end = (charPosition + PREVIEW_WINDOW_CHARS).coerceAtMost(text.length)
+        val sample = text.substring(start, end)
+
+        val words = sample.replace('\n', ' ').replace('\r', ' ').split(' ')
+            .filter { it.isNotBlank() }
+
+        if (words.isEmpty()) return ""
+
+        val sampleOffsetChars = charPosition - start
+        val relativeWordPos = (sampleOffsetChars / CHARS_PER_WORD_ESTIMATION).coerceIn(0, words.size - 1)
+        val startPos = (relativeWordPos - PREVIEW_WORDS_BEFORE).coerceAtLeast(0)
+        val endPos = (relativeWordPos + PREVIEW_WORDS_AFTER).coerceAtMost(words.size)
+        val preview = words.subList(startPos, endPos).joinToString(" ")
+        return if (preview.length > PREVIEW_MAX_LENGTH) {
+            preview.take(PREVIEW_MAX_LENGTH) + "..."
+        } else preview
     }
     
     private fun countWords(text: String): Int {

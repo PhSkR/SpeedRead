@@ -1,5 +1,6 @@
 package com.speedread.rsvp.data
 
+import com.speedread.rsvp.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -10,9 +11,11 @@ class DocumentChunker {
     
     companion object {
         // Constants for document chunking
-        const val DEFAULT_CHUNK_SIZE = 10000 // 10,000 characters per chunk
-        const val MAX_CHUNK_SIZE = 50000 // Maximum 50,000 characters per chunk
-        const val MIN_CHUNK_SIZE = 1000  // Minimum 1,000 characters per chunk
+        const val DEFAULT_CHUNK_SIZE = Constants.DEFAULT_CHUNK_SIZE_CHARS
+        const val MAX_CHUNK_SIZE = Constants.MAX_CHUNK_SIZE_CHARS
+        const val MIN_CHUNK_SIZE = Constants.MIN_CHUNK_SIZE_CHARS
+
+        private val DELIMITERS = charArrayOf(' ', '\n', '.', '?', '!', ',', ';', ':', '\t')
     }
     
     data class DocumentChunk(
@@ -45,7 +48,7 @@ class DocumentChunker {
                 // Look for a good break point (space, period, newline, etc.)
                 var breakIndex = -1
                 for (i in endIndex downTo startIndex + (safeChunkSize / 2)) {
-                    if (i < document.length && document[i] in listOf(' ', '\n', '.', '?', '!', ',', ';', ':', '\t')) {
+                    if (i < document.length && document[i] in DELIMITERS) {
                         breakIndex = i + 1 // Include the delimiter
                         break
                     }

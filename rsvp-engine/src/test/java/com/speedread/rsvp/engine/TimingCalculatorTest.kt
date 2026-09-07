@@ -175,4 +175,107 @@ class TimingCalculatorTest {
         val expected = 316L + EngineConstants.DEFAULT_PERIOD_PAUSE
         assertEquals(expected, calc.calculateDelay(word, settings))
     }
+
+    // --- Quoted Dialogue & Closing Punctuation ---
+
+    @Test
+    fun quotedExclamationAddsExclamationPause() {
+        val word = RsvpWord(text = "\"Hello!\"", position = 0)
+        val settings = RsvpSettings(wpm = 250, enablePunctuationPausing = true)
+        val expected = 240L + EngineConstants.DEFAULT_EXCLAMATION_PAUSE
+        assertEquals(expected, calc.calculateDelay(word, settings))
+    }
+
+    @Test
+    fun curlyQuotedPeriodAddsPeriodPause() {
+        val word = RsvpWord(text = "“Yes.”", position = 0)
+        val settings = RsvpSettings(wpm = 250, enablePunctuationPausing = true)
+        val expected = 240L + EngineConstants.DEFAULT_PERIOD_PAUSE
+        assertEquals(expected, calc.calculateDelay(word, settings))
+    }
+
+    @Test
+    fun quotedQuestionAddsQuestionPause() {
+        val word = RsvpWord(text = "\"Really?\"", position = 0)
+        val settings = RsvpSettings(wpm = 250, enablePunctuationPausing = true)
+        val expected = 240L + EngineConstants.DEFAULT_QUESTION_PAUSE
+        assertEquals(expected, calc.calculateDelay(word, settings))
+    }
+
+    @Test
+    fun quotedCommaAddsCommaPause() {
+        val word = RsvpWord(text = "\"Wait,\"", position = 0)
+        val settings = RsvpSettings(wpm = 250, enablePunctuationPausing = true)
+        val expected = 240L + EngineConstants.DEFAULT_COMMA_PAUSE
+        assertEquals(expected, calc.calculateDelay(word, settings))
+    }
+
+    @Test
+    fun singleQuotedExclamationAddsExclamationPause() {
+        val word = RsvpWord(text = "'Stop!'", position = 0)
+        val settings = RsvpSettings(wpm = 250, enablePunctuationPausing = true)
+        val expected = 240L + EngineConstants.DEFAULT_EXCLAMATION_PAUSE
+        assertEquals(expected, calc.calculateDelay(word, settings))
+    }
+
+    @Test
+    fun parentheticalPeriodAddsPeriodPause() {
+        val word = RsvpWord(text = "(clause.)", position = 0)
+        val settings = RsvpSettings(wpm = 250, enablePunctuationPausing = true)
+        val expected = 240L + EngineConstants.DEFAULT_PERIOD_PAUSE
+        assertEquals(expected, calc.calculateDelay(word, settings))
+    }
+
+    @Test
+    fun bracketQuestionAddsQuestionPause() {
+        val word = RsvpWord(text = "[who?]", position = 0)
+        val settings = RsvpSettings(wpm = 250, enablePunctuationPausing = true)
+        val expected = 240L + EngineConstants.DEFAULT_QUESTION_PAUSE
+        assertEquals(expected, calc.calculateDelay(word, settings))
+    }
+
+    @Test
+    fun guillemetExclamationAddsExclamationPause() {
+        val word = RsvpWord(text = "«Merci!»", position = 0)
+        val settings = RsvpSettings(wpm = 250, enablePunctuationPausing = true)
+        val expected = 240L + EngineConstants.DEFAULT_EXCLAMATION_PAUSE
+        assertEquals(expected, calc.calculateDelay(word, settings))
+    }
+
+    @Test
+    fun multipleClosingQuotesHandled() {
+        val word = RsvpWord(text = "“Stop!””", position = 0)
+        val settings = RsvpSettings(wpm = 250, enablePunctuationPausing = true)
+        val expected = 240L + EngineConstants.DEFAULT_EXCLAMATION_PAUSE
+        assertEquals(expected, calc.calculateDelay(word, settings))
+    }
+
+    @Test
+    fun stackedQuotesAndParenHandled() {
+        val word = RsvpWord(text = "(\"Wait!\")", position = 0)
+        val settings = RsvpSettings(wpm = 250, enablePunctuationPausing = true)
+        val expected = 240L + EngineConstants.DEFAULT_EXCLAMATION_PAUSE
+        assertEquals(expected, calc.calculateDelay(word, settings))
+    }
+
+    @Test
+    fun onlyClosingPunctuationReturnsNoPunctuationPause() {
+        val word = RsvpWord(text = "\"\"", position = 0)
+        val settings = RsvpSettings(wpm = 250, enablePunctuationPausing = true)
+        assertEquals(240L, calc.calculateDelay(word, settings))
+    }
+
+    @Test
+    fun closingPunctuationWithoutPrecedingPunctuationReturnsNoPause() {
+        val word = RsvpWord(text = "word)", position = 0)
+        val settings = RsvpSettings(wpm = 250, enablePunctuationPausing = true)
+        assertEquals(240L, calc.calculateDelay(word, settings))
+    }
+
+    @Test
+    fun punctuationPausingDisabledIgnoresQuotedPunctuation() {
+        val word = RsvpWord(text = "\"Hello!\"", position = 0)
+        val settings = RsvpSettings(wpm = 250, enablePunctuationPausing = false)
+        assertEquals(240L, calc.calculateDelay(word, settings))
+    }
 }

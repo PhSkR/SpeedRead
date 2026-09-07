@@ -87,15 +87,17 @@ class EpubFileParser @Inject constructor(
                     
                     while (entry != null) {
                         val entryName = entry.name
-                        val content = zipStream.readBytes()
-                        zipEntries[entryName] = content
-                        
-                        when {
-                            entryName == "META-INF/container.xml" -> {
-                                containerXmlContent = content.toString(Charsets.UTF_8)
-                            }
-                            entryName.endsWith(".opf") && opfPath == null -> {
-                                opfPath = entryName
+                        if (isTextMarkupEntry(entryName, entry.isDirectory)) {
+                            val content = zipStream.readBytes()
+                            zipEntries[entryName] = content
+                            
+                            when {
+                                entryName.equals("META-INF/container.xml", ignoreCase = true) -> {
+                                    containerXmlContent = content.toString(Charsets.UTF_8)
+                                }
+                                entryName.endsWith(".opf", ignoreCase = true) && opfPath == null -> {
+                                    opfPath = entryName
+                                }
                             }
                         }
                         
@@ -330,6 +332,21 @@ class EpubFileParser @Inject constructor(
             "image/svg+xml",
             "application/x-dtbook+xml" -> true
             else -> false
+        }
+    }
+
+    companion object {
+        val TEXT_MARKUP_EXTENSIONS = setOf(
+            ".opf",
+            ".xml",
+            ".html",
+            ".xhtml",
+            ".htm"
+        )
+
+        internal fun isTextMarkupEntry(entryName: String, isDirectory: Boolean): Boolean {
+            if (isDirectory) return false
+            return TEXT_MARKUP_EXTENSIONS.any { entryName.endsWith(it, ignoreCase = true) }
         }
     }
 }

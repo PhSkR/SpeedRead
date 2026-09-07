@@ -65,11 +65,7 @@ object TtsChunker {
     // Closers that may legally follow a sentence terminator: ASCII straight/curly quotes,
     // brackets, parens. Stripped right-to-left so `."`, `!")`, `?”` all detect as a
     // sentence end.
-    private val CLOSING_AFTER_TERMINATOR = setOf(
-        '"', '\'', ')', ']', '}',
-        '’', // right single quote (’)
-        '”'  // right double quote (”)
-    )
+    private val CLOSING_AFTER_TERMINATOR = EngineConstants.CLOSING_PUNCTUATION
 
     // Tokens that LOOK like a sentence terminator (end with `.`) but aren't — flushing
     // mid-sentence at any of these would re-introduce the original mid-clause-pause bug.

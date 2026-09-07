@@ -19,7 +19,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -37,47 +39,49 @@ data class RenderedPdfPage(
 class PdfPageRenderer @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    private var currentPdfRenderer: PdfRenderer? = null
+    private @Volatile var currentPdfRenderer: PdfRenderer? = null
     private var currentPdfFile: ParcelFileDescriptor? = null
     private var currentTempFile: File? = null
     
-    // Limit concurrent rendering to prevent memory issues
-    private val renderingSemaphore = Semaphore(Constants.PDF_CONCURRENT_RENDERS)
+    // Mutex ensuring strictly one open page / renderer operation at a time
+    private val renderMutex = Mutex()
     
     /**
      * Initialize PDF renderer with a PDF file
      */
     suspend fun initializePdf(inputStream: InputStream): Result<Int> = withContext(Dispatchers.IO) {
-        try {
-            // Close any existing renderer
-            closePdf()
-            
-            // Create temporary file for PDF rendering
-            val tempFile = File.createTempFile("pdf_render", ".pdf", context.cacheDir)
-            tempFile.deleteOnExit()
-            
-            // Copy input stream to temporary file
-            FileOutputStream(tempFile).use { output ->
-                inputStream.copyTo(output)
+        renderMutex.withLock {
+            try {
+                // Close any existing renderer
+                closePdfInternal()
+                
+                // Create temporary file for PDF rendering
+                val tempFile = File.createTempFile("pdf_render", ".pdf", context.cacheDir)
+                tempFile.deleteOnExit()
+                
+                // Copy input stream to temporary file
+                FileOutputStream(tempFile).use { output ->
+                    inputStream.copyTo(output)
+                }
+                
+                // Validate file was created successfully
+                if (!tempFile.exists() || tempFile.length() == 0L) {
+                    tempFile.delete()
+                    throw IllegalStateException("Failed to create temporary PDF file")
+                }
+                
+                // Open PDF with PdfRenderer
+                val pfd = ParcelFileDescriptor.open(tempFile, ParcelFileDescriptor.MODE_READ_ONLY)
+                val renderer = PdfRenderer(pfd)
+                
+                currentPdfFile = pfd
+                currentPdfRenderer = renderer
+                currentTempFile = tempFile
+                
+                Result.success(renderer.pageCount)
+            } catch (e: Exception) {
+                Result.failure(e)
             }
-            
-            // Validate file was created successfully
-            if (!tempFile.exists() || tempFile.length() == 0L) {
-                tempFile.delete()
-                throw IllegalStateException("Failed to create temporary PDF file")
-            }
-            
-            // Open PDF with PdfRenderer
-            val pfd = ParcelFileDescriptor.open(tempFile, ParcelFileDescriptor.MODE_READ_ONLY)
-            val renderer = PdfRenderer(pfd)
-            
-            currentPdfFile = pfd
-            currentPdfRenderer = renderer
-            currentTempFile = tempFile
-            
-            Result.success(renderer.pageCount)
-        } catch (e: Exception) {
-            Result.failure(e)
         }
     }
     
@@ -85,60 +89,55 @@ class PdfPageRenderer @Inject constructor(
      * Render a specific PDF page to bitmap
      */
     suspend fun renderPage(pageIndex: Int, targetWidth: Int = Constants.PDF_RENDER_TARGET_WIDTH): Result<RenderedPdfPage> = withContext(Dispatchers.IO) {
-        // Limit concurrent rendering
-        renderingSemaphore.acquire()
-        try {
-            val renderer = currentPdfRenderer ?: return@withContext Result.failure(
-                IllegalStateException("PDF not initialized")
-            )
-            
-            if (pageIndex < 0 || pageIndex >= renderer.pageCount) {
-                return@withContext Result.failure(
-                    IndexOutOfBoundsException("Page $pageIndex out of range (0-${renderer.pageCount - 1})")
+        renderMutex.withLock {
+            try {
+                val renderer = currentPdfRenderer ?: return@withLock Result.failure(
+                    IllegalStateException("PDF not initialized")
                 )
-            }
-            
-            // Validate targetWidth
-            val safeTargetWidth = targetWidth.coerceIn(Constants.PDF_RENDER_MIN_WIDTH, Constants.PDF_RENDER_MAX_WIDTH)
-            
-            renderer.openPage(pageIndex).use { page ->
-                // Calculate bitmap dimensions maintaining aspect ratio
-                val aspectRatio = page.width.toFloat() / page.height.toFloat()
-                val bitmapWidth = safeTargetWidth
-                val bitmapHeight = (safeTargetWidth / aspectRatio).toInt()
                 
-                // Validate bitmap dimensions to prevent memory issues
-                val totalPixels = bitmapWidth * bitmapHeight
-                if (totalPixels > Constants.PDF_MAX_BITMAP_PIXELS) {
-                    return@withContext Result.failure(
-                        IllegalArgumentException("Rendered page would be too large: ${bitmapWidth}x${bitmapHeight}")
+                if (pageIndex < 0 || pageIndex >= renderer.pageCount) {
+                    return@withLock Result.failure(
+                        IndexOutOfBoundsException("Page $pageIndex out of range (0-${renderer.pageCount - 1})")
                     )
                 }
                 
-                // Create bitmap and render page. Uses Constants.PDF_RENDER_BITMAP_CONFIG
-                // (RGB_565) for half the per-page memory of ARGB_8888 — PDF pages are
-                // opaque, so the alpha channel is unused. The PdfRenderer documentation
-                // states it expects a fully-opaque white-initialised bitmap, so we paint
-                // the canvas white before rendering. Skipping this fill produces visible
-                // artefacts under RGB_565 because that config cannot represent the
-                // transparent default state ARGB_8888 happens to start in.
-                val bitmap = Bitmap.createBitmap(bitmapWidth, bitmapHeight, Constants.PDF_RENDER_BITMAP_CONFIG)
-                Canvas(bitmap).drawColor(Color.WHITE)
-                page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                // Validate targetWidth
+                val safeTargetWidth = targetWidth.coerceIn(Constants.PDF_RENDER_MIN_WIDTH, Constants.PDF_RENDER_MAX_WIDTH)
                 
-                Result.success(
-                    RenderedPdfPage(
-                        pageNumber = pageIndex + 1,
-                        bitmap = bitmap,
-                        width = bitmapWidth,
-                        height = bitmapHeight
+                renderer.openPage(pageIndex).use { page ->
+                    // Calculate bitmap dimensions maintaining aspect ratio
+                    val aspectRatio = page.width.toFloat() / page.height.toFloat()
+                    val bitmapWidth = safeTargetWidth
+                    val bitmapHeight = (safeTargetWidth / aspectRatio).toInt()
+                    
+                    // Validate bitmap dimensions to prevent memory issues
+                    val totalPixels = bitmapWidth * bitmapHeight
+                    if (totalPixels > Constants.PDF_MAX_BITMAP_PIXELS) {
+                        return@withLock Result.failure(
+                            IllegalArgumentException("Rendered page would be too large: ${bitmapWidth}x${bitmapHeight}")
+                        )
+                    }
+                    
+                    // Create bitmap and render page. Uses Constants.PDF_RENDER_BITMAP_CONFIG
+                    // (ARGB_8888). The PdfRenderer documentation states it expects a
+                    // fully-opaque white-initialised bitmap, so we paint the canvas white
+                    // before rendering.
+                    val bitmap = Bitmap.createBitmap(bitmapWidth, bitmapHeight, Constants.PDF_RENDER_BITMAP_CONFIG)
+                    Canvas(bitmap).drawColor(Color.WHITE)
+                    page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                    
+                    Result.success(
+                        RenderedPdfPage(
+                            pageNumber = pageIndex + 1,
+                            bitmap = bitmap,
+                            width = bitmapWidth,
+                            height = bitmapHeight
+                        )
                     )
-                )
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
             }
-        } catch (e: Exception) {
-            Result.failure(e)
-        } finally {
-            renderingSemaphore.release()
         }
     }
     
@@ -157,9 +156,15 @@ class PdfPageRenderer @Inject constructor(
     }
     
     /**
-     * Close the current PDF and free resources
+     * Close the current PDF and free resources, guarded by renderMutex
      */
-    fun closePdf() {
+    suspend fun closePdf() = withContext(Dispatchers.IO) {
+        renderMutex.withLock {
+            closePdfInternal()
+        }
+    }
+
+    private fun closePdfInternal() {
         try {
             currentPdfRenderer?.close()
         } catch (e: Exception) {
@@ -267,6 +272,8 @@ class PdfPageViewModel @Inject constructor(
     
     override fun onCleared() {
         super.onCleared()
-        pdfRenderer.closePdf()
+        runBlocking {
+            pdfRenderer.closePdf()
+        }
     }
 }

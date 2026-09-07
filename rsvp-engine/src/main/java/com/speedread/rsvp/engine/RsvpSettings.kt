@@ -13,6 +13,8 @@ data class PunctuationTiming(
     companion object {
         fun default() = PunctuationTiming()
         
+        val CLOSING_PUNCTUATION: Set<Char> get() = EngineConstants.CLOSING_PUNCTUATION
+
         fun getPauseForCharacter(char: Char, timing: PunctuationTiming): Int {
             return when (char) {
                 ',' -> timing.comma
